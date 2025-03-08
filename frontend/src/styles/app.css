@@ -1,0 +1,21 @@
+/* App container styles */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Content area styles */
+.content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* Loading screen styles */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+}

@@ -1,0 +1,241 @@
+.product-info-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.info-panels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.info-panel {
+    flex: 1;
+    min-width: 300px;
+    background: linear-gradient(rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.info-panel h2 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.info-panel h2::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 2px;
+    background-color: var(--secondary-color);
+    bottom: 0;
+    left: 0;
+}
+
+.info-content {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.info-content p {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.info-value {
+    text-align: right;
+}
+
+.status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status.available {
+    background-color: #28a745;
+    color: white;
+}
+
+.status.sold {
+    background-color: #dc3545;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.action-button {
+    padding: 0.75rem 2rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.action-button:hover {
+    background-color: #0941c8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    color: white;
+}
+
+.action-button.buy {
+    background-color: #28a745;
+}
+
+.action-button.buy:hover {
+    background-color: #218838;
+}
+
+.action-button.verify {
+    background-color: #17a2b8;
+}
+
+.action-button.verify:hover {
+    background-color: #138496;
+}
+
+.verification-result {
+    text-align: center;
+    margin-top: 3rem;
+    padding: 2rem;
+    border-radius: 8px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.verification-result.authentic {
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.verification-result.counterfeit {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.verification-result h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.verification-result.authentic h3 {
+    color: #28a745;
+}
+
+.verification-result.counterfeit h3 {
+    color: #dc3545;
+}
+
+.verification-result p {
+    margin-bottom: 0.5rem;
+}
+
+.chain-of-custody {
+    margin-top: 3rem;
+}
+
+.chain-of-custody h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.custody-timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.custody-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 3px;
+    background-color: var(--secondary-color);
+}
+
+.custody-event {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 2rem;
+}
+
+.custody-event::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px var(--secondary-color);
+}
+
+.custody-event .event-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.custody-event .event-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.custody-event .event-details {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .info-panels {
+        flex-direction: column;
+    }
+
+    .info-panel {
+        width: 100%;
+    }
+
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .action-button {
+        width: 100%;
+        text-align: center;
+    }
+}

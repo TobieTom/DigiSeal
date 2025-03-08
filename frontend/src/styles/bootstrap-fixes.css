@@ -1,0 +1,59 @@
+/* Bootstrap 5 compatibility fixes */
+
+/* Form.Row is deprecated in Bootstrap 5, replaced with Row */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+/* Adding back d-flex utility class for React Bootstrap use */
+.d-flex {
+    display: flex !important;
+}
+
+/* Utility for flex direction */
+.flex-column {
+    flex-direction: column !important;
+}
+
+/* Utility for justifying content */
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.justify-content-center {
+    justify-content: center !important;
+}
+
+/* Utility for aligning items */
+.align-items-center {
+    align-items: center !important;
+}
+
+/* Text utilities */
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* Margin utilities */
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.ml-2 {
+    margin-left: 0.5rem !important;
+}

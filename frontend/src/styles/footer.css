@@ -1,0 +1,137 @@
+.footer-section {
+    width: 100%;
+    background: var(--primary-color);
+    padding-top: 30px;
+    margin-top: auto;
+    color: white;
+}
+
+.footer-section a {
+    font-weight: 300;
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section a:hover {
+    color: var(--secondary-color);
+}
+
+.logo-container {
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.footer-logo {
+    margin: auto;
+    margin-top: 20px;
+    width: 180px;
+    max-width: 100%;
+}
+
+.footer-list ul {
+    display: grid;
+    justify-content: center;
+    padding-left: 0;
+}
+
+.footer-list li {
+    list-style: none;
+    text-align: left;
+    color: white;
+    font-size: 0.9375rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.footer-list li a {
+    padding: 0.5rem 0;
+    display: inline-block;
+}
+
+.footer-list li a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    height: 2px;
+    left: 50%;
+    opacity: 0;
+    width: 0;
+    transition: all 0.5s ease;
+}
+
+.footer-list li:hover a::after {
+    opacity: 1;
+    left: 0;
+    width: 100%;
+}
+
+.footer-list h2 {
+    color: white;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 1.4px;
+    position: relative;
+    padding: 10px 0;
+    margin-bottom: 1rem;
+}
+
+.footer-list h2::after {
+    content: "";
+    position: absolute;
+    height: 2px;
+    bottom: 0;
+    width: 0;
+    left: 50%;
+    background-color: #fff;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.footer-list:hover h2::after {
+    width: 100%;
+    left: 0;
+}
+
+.copyright {
+    width: 100%;
+    background-color: #111624;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.copyright a {
+    display: block;
+    padding: 15px 0;
+    font-size: 0.875rem;
+    letter-spacing: 1px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .footer-section {
+        padding-top: 20px;
+    }
+
+    .footer-logo {
+        width: 150px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .footer-list h2 {
+        font-size: 1.125rem;
+        margin-top: 1rem;
+    }
+
+    .footer-list li {
+        font-size: 0.875rem;
+    }
+
+    .footer-list li a {
+        padding: 0.3rem 0;
+    }
+}

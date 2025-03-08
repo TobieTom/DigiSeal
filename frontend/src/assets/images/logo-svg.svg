@@ -1,0 +1,21 @@
+<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-text { fill: white; font-family: Arial, sans-serif; font-weight: bold; }
+    .small-text { fill: white; font-family: Arial, sans-serif; font-size: 12px; }
+    .chain { stroke: #1059ff; stroke-width: 3; fill: none; }
+    .block { fill: #1059ff; }
+  </style>
+  
+  <!-- Chain links -->
+  <path class="chain" d="M40,50 C40,40 50,40 60,40 L70,40 C80,40 90,40 90,50 C90,60 80,60 70,60 L60,60 C50,60 40,60 40,50 Z" />
+  <path class="chain" d="M70,50 C70,40 80,40 90,40 L100,40 C110,40 120,40 120,50 C120,60 110,60 100,60 L90,60 C80,60 70,60 70,50 Z" />
+  
+  <!-- Blocks representing blockchain -->
+  <rect class="block" x="130" y="35" width="20" height="30" rx="2" />
+  <rect class="block" x="160" y="35" width="20" height="30" rx="2" />
+  <rect class="block" x="190" y="35" width="20" height="30" rx="2" />
+  
+  <!-- Logo text -->
+  <text x="130" y="80" class="logo-text" font-size="20">BLOCKVERIFY</text>
+  <text x="130" y="95" class="small-text">Blockchain Product Verification</text>
+</svg>
