@@ -1,3 +1,4 @@
+// src/pages/ScanQR.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import QrReader from 'react-qr-scanner'
@@ -19,10 +20,8 @@ function ScanQR() {
     const setScannedValue = useSetRecoilState(atoms[stateKey] || atoms.fallbackState)
 
     useEffect(() => {
-        // If no valid return path is provided, redirect to home
-        if (!location.state) {
-            navigate('/')
-        }
+        // If no valid return path is provided, we'll still allow scanning
+        // but will redirect to home when done
     }, [])
 
     // Handle QR scan errors

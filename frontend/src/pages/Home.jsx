@@ -5,7 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button, Container } from 'react-bootstrap'
 // Fixed icon imports
-import { BiScan, BiShield, BiCheckShield, BiCertification, BiStore, BiBox } from 'react-icons/bi'
+// import { BiScan, BiShield, BiCheckShield, BiCertification, BiStore, BiBox } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { productIdHomeState, toastState } from '../store/atoms'
 import '../styles/home.css'

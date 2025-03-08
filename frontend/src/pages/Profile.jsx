@@ -5,9 +5,7 @@ import { userRoleState, toastState } from '../store/atoms'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button, Card } from 'react-bootstrap'
-// Import correct icons
-import { BiUser, BiStore, BiBuildings, BiWallet, BiEdit, BiX } from 'react-icons/bi'
-import Loader from '../components/common/Loader'
+// Using standard Bootstrap icons from react-bootstrap
 import '../styles/profile.css'
 
 function Profile() {
@@ -111,15 +109,15 @@ function Profile() {
         }
     }
 
-    // Get role icon based on user role
-    const getRoleIcon = (role) => {
+    // Get role icon class
+    const getRoleIconClass = (role) => {
         switch (role) {
             case 'manufacturer':
-                return <BiBuildings size={24} />
+                return 'bi bi-building'
             case 'seller':
-                return <BiStore size={24} />
+                return 'bi bi-shop'
             default:
-                return <BiUser size={24} />
+                return 'bi bi-person'
         }
     }
 
@@ -136,7 +134,7 @@ function Profile() {
     }
 
     if (loading) {
-        return <Loader />
+        return <div className="loading-container">Loading profile data...</div>
     }
 
     return (
@@ -153,7 +151,7 @@ function Profile() {
                         </div>
                         <div className="profile-role">
                             <span className="role-badge">
-                                {getRoleIcon(userData.role)}
+                                <i className={getRoleIconClass(userData.role)}></i>
                                 {getRoleName(userData.role)}
                             </span>
                         </div>
@@ -178,7 +176,7 @@ function Profile() {
                                                 onClick={() => setIsEditing(false)}
                                                 className="close-button"
                                             >
-                                                <BiX size={24} />
+                                                <i className="bi bi-x-lg"></i>
                                             </button>
                                         </div>
 
@@ -243,7 +241,7 @@ function Profile() {
                                     <div className="info-item">
                                         <label>Wallet Address</label>
                                         <p className="wallet-address">
-                                            <BiWallet size={20} />
+                                            <i className="bi bi-wallet2"></i>
                                             {userData.walletAddress}
                                         </p>
                                     </div>
@@ -253,7 +251,7 @@ function Profile() {
                                             onClick={() => setIsEditing(true)}
                                             className="edit-button"
                                         >
-                                            <BiEdit size={18} /> Edit Profile
+                                            <i className="bi bi-pencil"></i> Edit Profile
                                         </Button>
                                     </div>
                                 </div>
@@ -268,7 +266,7 @@ function Profile() {
                                     >
                                         <Card.Body>
                                             <div className="role-icon">
-                                                <BiUser size={32} />
+                                                <i className="bi bi-person"></i>
                                             </div>
                                             <Card.Title>Consumer</Card.Title>
                                             <Card.Text>
@@ -283,7 +281,7 @@ function Profile() {
                                     >
                                         <Card.Body>
                                             <div className="role-icon">
-                                                <BiStore size={32} />
+                                                <i className="bi bi-shop"></i>
                                             </div>
                                             <Card.Title>Seller</Card.Title>
                                             <Card.Text>
@@ -298,7 +296,7 @@ function Profile() {
                                     >
                                         <Card.Body>
                                             <div className="role-icon">
-                                                <BiBuildings size={32} />
+                                                <i className="bi bi-building"></i>
                                             </div>
                                             <Card.Title>Manufacturer</Card.Title>
                                             <Card.Text>

@@ -6,10 +6,12 @@ import { loginState, userRoleState } from './store/atoms'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Loader from './components/common/Loader'
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 // Lazy-loaded page components
 const Home = lazy(() => import('./pages/Home'))
 const Login = lazy(() => import('./pages/Login'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Profile = lazy(() => import('./pages/Profile'))
 const ProductInfo = lazy(() => import('./pages/ProductInfo'))
 const BuyProduct = lazy(() => import('./pages/BuyProduct'))
@@ -40,8 +42,8 @@ const RequireRole = ({ children, allowedRoles }) => {
     const location = useLocation()
 
     if (!allowedRoles.includes(userRole)) {
-        // If user doesn't have the required role, redirect to home
-        return <Navigate to="/" replace />
+        // If user doesn't have the required role, redirect to dashboard
+        return <Navigate to="/dashboard" replace />
     }
 
     return children
@@ -52,95 +54,107 @@ function AppRoutes() {
         <Router>
             <Header />
             <main className="main-content">
-                <Suspense fallback={<Loader />}>
-                    <Routes>
-                        {/* Public routes */}
-                        <Route path="/" element={<Home />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/scan" element={<ScanQR />} />
-                        <Route path="/qrcode/:id" element={<QRCode />} />
-                        <Route path="/product/:id" element={<ProductInfo />} />
+                <ErrorBoundary>
+                    <Suspense fallback={<Loader />}>
+                        <Routes>
+                            {/* Public routes */}
+                            <Route path="/" element={<Home />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/scan" element={<ScanQR />} />
+                            <Route path="/qrcode/:id" element={<QRCode />} />
+                            <Route path="/product/:id" element={<ProductInfo />} />
 
-                        {/* Protected routes (require authentication) */}
-                        <Route
-                            path="/profile"
-                            element={
-                                <RequireAuth>
-                                    <Profile />
-                                </RequireAuth>
-                            }
-                        />
+                            {/* Dashboard - requires authentication */}
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <RequireAuth>
+                                        <Dashboard />
+                                    </RequireAuth>
+                                }
+                            />
 
-                        <Route
-                            path="/buy"
-                            element={
-                                <RequireAuth>
-                                    <BuyProduct />
-                                </RequireAuth>
-                            }
-                        />
+                            {/* Protected routes (require authentication) */}
+                            <Route
+                                path="/profile"
+                                element={
+                                    <RequireAuth>
+                                        <Profile />
+                                    </RequireAuth>
+                                }
+                            />
 
-                        {/* Routes that require manufacturer role */}
-                        <Route
-                            path="/add"
-                            element={
-                                <RequireAuth>
-                                    <RequireRole allowedRoles={['manufacturer']}>
-                                        <AddProduct />
-                                    </RequireRole>
-                                </RequireAuth>
-                            }
-                        />
+                            <Route
+                                path="/buy"
+                                element={
+                                    <RequireAuth>
+                                        <BuyProduct />
+                                    </RequireAuth>
+                                }
+                            />
 
-                        {/* Routes that require seller or manufacturer role */}
-                        <Route
-                            path="/sell"
-                            element={
-                                <RequireAuth>
-                                    <RequireRole allowedRoles={['seller', 'manufacturer']}>
-                                        <SellProduct />
-                                    </RequireRole>
-                                </RequireAuth>
-                            }
-                        />
+                            {/* Routes that require manufacturer role */}
+                            <Route
+                                path="/add"
+                                element={
+                                    <RequireAuth>
+                                        <RequireRole allowedRoles={['manufacturer']}>
+                                            <AddProduct />
+                                        </RequireRole>
+                                    </RequireAuth>
+                                }
+                            />
 
-                        <Route
-                            path="/products"
-                            element={
-                                <RequireAuth>
-                                    <RequireRole allowedRoles={['seller', 'manufacturer']}>
-                                        <ProductsList />
-                                    </RequireRole>
-                                </RequireAuth>
-                            }
-                        />
+                            {/* Routes that require seller or manufacturer role */}
+                            <Route
+                                path="/sell"
+                                element={
+                                    <RequireAuth>
+                                        <RequireRole allowedRoles={['seller', 'manufacturer']}>
+                                            <SellProduct />
+                                        </RequireRole>
+                                    </RequireAuth>
+                                }
+                            />
 
-                        <Route
-                            path="/addowner"
-                            element={
-                                <RequireAuth>
-                                    <RequireRole allowedRoles={['seller', 'manufacturer']}>
-                                        <AddOwner />
-                                    </RequireRole>
-                                </RequireAuth>
-                            }
-                        />
+                            <Route
+                                path="/products"
+                                element={
+                                    <RequireAuth>
+                                        <RequireRole allowedRoles={['seller', 'manufacturer']}>
+                                            <ProductsList />
+                                        </RequireRole>
+                                    </RequireAuth>
+                                }
+                            />
 
-                        <Route
-                            path="/registerSeller"
-                            element={
-                                <RequireAuth>
-                                    <RequireRole allowedRoles={['manufacturer']}>
-                                        <RegisterSeller />
-                                    </RequireRole>
-                                </RequireAuth>
-                            }
-                        />
+                            <Route
+                                path="/addowner"
+                                element={
+                                    <RequireAuth>
+                                        <RequireRole allowedRoles={['seller', 'manufacturer']}>
+                                            <AddOwner />
+                                        </RequireRole>
+                                    </RequireAuth>
+                                }
+                            />
 
-                        {/* Fallback route - redirect to home page */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </Suspense>
+                            <Route
+                                path="/registerSeller"
+                                element={
+                                    <RequireAuth>
+                                        <RequireRole allowedRoles={['manufacturer']}>
+                                            <RegisterSeller />
+                                        </RequireRole>
+                                    </RequireAuth>
+                                }
+                            />
+
+                            {/* Fallback route - redirect to home page */}
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </Suspense>
+                </ErrorBoundary>
             </main>
             <Footer />
         </Router>

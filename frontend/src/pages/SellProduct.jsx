@@ -1,8 +1,10 @@
+// src/pages/SellProduct.jsx
 import { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
-import { BiScan } from 'react-icons/bi'
+// Replace react-icons import with Bootstrap icons
+// import { BiScan } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { buyerAddressState, productIdState, toastState } from '../store/atoms'
@@ -96,7 +98,7 @@ function SellProduct() {
                                                             state={{ returnTo: '/sell', stateKey: 'buyerAddressState' }}
                                                             className="scan-button"
                                                         >
-                                                            <BiScan size={24} />
+                                                            <i className="bi bi-qr-code-scan"></i>
                                                         </Link>
                                                     </div>
                                                     <ErrorMessage name="address" component="div" className="error-message" />
@@ -118,7 +120,7 @@ function SellProduct() {
                                                             state={{ returnTo: '/sell', stateKey: 'productIdState' }}
                                                             className="scan-button"
                                                         >
-                                                            <BiScan size={24} />
+                                                            <i className="bi bi-qr-code-scan"></i>
                                                         </Link>
                                                     </div>
                                                     <ErrorMessage name="productId" component="div" className="error-message" />

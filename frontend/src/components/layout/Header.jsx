@@ -7,13 +7,8 @@ import Loader from '../common/Loader'
 import '../../styles/header.css'
 import '../../styles/hamburger.css'
 
-// Import images
+// Import logo
 import logo from '../../assets/images/logo-svg.svg'
-import homeIcon from '../../assets/images/home-icon.svg'
-import userIcon from '../../assets/images/user-icon.svg'
-import vendorIcon from '../../assets/images/vendor-icon.svg'
-// Fixed imports for react-icons
-import { BiScan, BiBox, BiTransfer, BiStore, BiUser, BiBuildings } from 'react-icons/bi'
 
 function Header() {
     const [menuOpen, setMenuOpen] = useState(false)
@@ -92,25 +87,26 @@ function Header() {
             <nav className="navbar">
                 <div className="navbar-brand">
                     <div className="logo">
-                        <Link to="/">
+                        <Link to={isLoggedIn ? "/dashboard" : "/"}>
                             <img src={logo} className="logo-img" alt="BlockVerify" />
                         </Link>
                     </div>
 
                     <div className="verification-container">
                         <Link to="/scan" className="scan-button-header">
-                            <BiScan size={20} />
+                            <i className="bi bi-qr-code-scan"></i>
                             <span>Scan QR</span>
                         </Link>
                     </div>
                 </div>
 
                 <div className="nav-items">
+                    {/* Always visible links */}
                     <div className="nav-link">
-                        <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+                        <Link to={isLoggedIn ? "/dashboard" : "/"} className={location.pathname === '/' || location.pathname === '/dashboard' ? 'active' : ''}>
                             <span>
-                                <img src={homeIcon} alt="Home" />
-                                <h5>Home</h5>
+                                <i className="bi bi-house"></i>
+                                <h5>{isLoggedIn ? 'Dashboard' : 'Home'}</h5>
                             </span>
                         </Link>
                     </div>
@@ -121,7 +117,7 @@ function Header() {
                             <div className="nav-link">
                                 <Link to="/buy" className={location.pathname === '/buy' ? 'active' : ''}>
                                     <span>
-                                        <BiStore size={20} />
+                                        <i className="bi bi-shield-check"></i>
                                         <h5>Verify</h5>
                                     </span>
                                 </Link>
@@ -133,7 +129,7 @@ function Header() {
                                     <div className="nav-link">
                                         <Link to="/products" className={location.pathname === '/products' ? 'active' : ''}>
                                             <span>
-                                                <BiBox size={20} />
+                                                <i className="bi bi-box-seam"></i>
                                                 <h5>My Products</h5>
                                             </span>
                                         </Link>
@@ -142,7 +138,7 @@ function Header() {
                                     <div className="nav-link">
                                         <Link to="/addowner" className={location.pathname === '/addowner' ? 'active' : ''}>
                                             <span>
-                                                <BiTransfer size={20} />
+                                                <i className="bi bi-arrow-left-right"></i>
                                                 <h5>Transfer</h5>
                                             </span>
                                         </Link>
@@ -155,7 +151,7 @@ function Header() {
                                 <div className="nav-link">
                                     <Link to="/add" className={location.pathname === '/add' ? 'active' : ''}>
                                         <span>
-                                            <BiBox size={20} />
+                                            <i className="bi bi-plus-circle"></i>
                                             <h5>Add Product</h5>
                                         </span>
                                     </Link>
@@ -166,7 +162,7 @@ function Header() {
                             <div className="nav-link">
                                 <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}>
                                     <span>
-                                        <BiUser size={20} />
+                                        <i className="bi bi-person-circle"></i>
                                         <h5>Profile</h5>
                                     </span>
                                 </Link>
@@ -180,14 +176,14 @@ function Header() {
                         ) : isLoggedIn ? (
                             <button onClick={handleLogout} className="auth-button">
                                 <span>
-                                    <img src={vendorIcon} alt="Logout" />
+                                    <i className="bi bi-box-arrow-right"></i>
                                     <h5>Logout</h5>
                                 </span>
                             </button>
                         ) : (
                             <button onClick={handleLogin} className="auth-button">
                                 <span>
-                                    <img src={userIcon} alt="Login" />
+                                    <i className="bi bi-box-arrow-in-right"></i>
                                     <h5>Login</h5>
                                 </span>
                             </button>

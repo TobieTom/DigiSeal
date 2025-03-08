@@ -18,15 +18,15 @@ function Login() {
     const [loading, setLoading] = useState(false)
 
     // Get the page the user was trying to access before being redirected to login
-    const from = location.state?.from?.pathname || '/'
+    const from = location.state?.from?.pathname || '/dashboard'
 
     // Check if user is already logged in
     useEffect(() => {
         if (isLoggedIn) {
             setToast('Already logged in!')
-            navigate(from)
+            navigate('/dashboard')
         }
-    }, [isLoggedIn, navigate, from, setToast])
+    }, [isLoggedIn, navigate, setToast])
 
     // Login validation schema
     const loginSchema = Yup.object({
@@ -60,7 +60,7 @@ function Login() {
                 setToast('Logged in successfully')
                 setLoading(false)
                 setSubmitting(false)
-                navigate(from)
+                navigate('/dashboard')
             }, 1500)
         } catch (error) {
             console.error('Login error:', error)
@@ -89,7 +89,7 @@ function Login() {
                 setToast('Account created successfully')
                 setLoading(false)
                 setSubmitting(false)
-                navigate(from)
+                navigate('/dashboard')
             }, 1500)
         } catch (error) {
             console.error('Signup error:', error)
