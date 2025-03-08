@@ -1,0 +1,197 @@
+/* src/styles/auth.css */
+.auth-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem 1rem;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.auth-card {
+    background: linear-gradient(rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.auth-header {
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+    color: white;
+}
+
+.auth-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-tab:hover {
+    color: white;
+}
+
+.auth-tab.active {
+    color: white;
+    border-bottom: 3px solid var(--secondary-color);
+}
+
+.auth-body {
+    padding: 2rem;
+}
+
+.auth-form .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 30px;
+    height: 45px;
+    color: white;
+    padding: 0.75rem 1.5rem;
+}
+
+.auth-form .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+    color: white;
+}
+
+.auth-form .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-form select.form-control option {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.auth-form .form-text {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.auth-form label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.auth-submit-button {
+    background-color: var(--secondary-color);
+    border: none;
+    border-radius: 30px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.auth-submit-button:hover {
+    background-color: #0040c1;
+    transform: translateY(-2px);
+}
+
+.auth-submit-button:disabled {
+    background-color: rgba(16, 89, 255, 0.5);
+    transform: none;
+}
+
+.auth-alternatives {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.auth-alternatives p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.wallet-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.wallet-button {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.wallet-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.wallet-button img {
+    height: 24px;
+    margin-right: 0.5rem;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .auth-section {
+        padding: 1rem;
+    }
+
+    .auth-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+
+    .auth-body {
+        padding: 1.5rem;
+    }
+}
