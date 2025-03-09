@@ -1,106 +1,578 @@
-/* Google Fonts import */
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+/* Essential color fixes for immediate implementation */
 
-/* CSS Reset */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-/* Root variables for consistent theming */
+/* 1. Main color system - add to src/styles/index.css */
 :root {
-    --primary-color: #171e30;
-    --secondary-color: #1059ff;
-    --accent-color: #f5f5f5;
-    --text-color: #333;
-    --text-light: #fff;
-    --border-radius: 5px;
-    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
+    /* Primary Colors */
+    --primary-dark: #1a1e3b;
+    /* Dark blue, for headers and backgrounds */
+    --primary-main: #2d3367;
+    /* Main blue, for containers */
+    --primary-light: #494f8c;
+    /* Lighter blue, for hover states */
+
+    /* Secondary Colors */
+    --secondary-main: #4361ee;
+    /* Vibrant blue for buttons and highlights */
+    --secondary-light: #738df7;
+    /* Lighter blue for hover effects */
+    --secondary-dark: #254EDB;
+    /* Darker blue for active states */
+
+    /* Accent Colors */
+    --accent-green: #34d399;
+    /* For success states and buttons */
+    --accent-red: #ef4444;
+    /* For error states */
+    --accent-orange: #f97316;
+    /* For warnings */
+    --accent-purple: #8b5cf6;
+    /* For special highlights */
+
+    /* Neutral Colors */
+    --neutral-100: #f9fafb;
+    /* Lightest */
+    --neutral-200: #f1f5f9;
+    --neutral-300: #e2e8f0;
+    --neutral-400: #cbd5e1;
+    --neutral-500: #94a3b8;
+    --neutral-600: #64748b;
+    --neutral-700: #475569;
+    --neutral-800: #334155;
+    --neutral-900: #1e293b;
+    /* Darkest */
+
+    /* Text Colors */
+    --text-light: #f8fafc;
+    /* Light text for dark backgrounds */
+    --text-light-secondary: #cbd5e1;
+    /* Secondary light text */
+    --text-dark: #1e293b;
+    /* Dark text for light backgrounds */
+    --text-dark-secondary: #475569;
+    /* Secondary dark text */
+
+    /* Status Colors */
+    --success: #34d399;
+    --error: #ef4444;
+    --warning: #f97316;
+    --info: #3b82f6;
+
+    /* Legacy variables mapped to new colors */
+    --primary-color: var(--primary-dark);
+    --secondary-color: var(--secondary-main);
+    --accent-color: var(--neutral-100);
+    --text-color: var(--text-dark);
 }
 
+/* Base fixes for body and common elements */
 body {
-    font-family: 'Open Sans', sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background-color: #f9f9f9;
-    min-height: 100vh;
+    background-color: var(--neutral-200);
+    color: var(--text-dark);
 }
 
-#root {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.app-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.main-content {
-    flex: 1;
-    padding: 2rem 0;
-}
-
+/* Fix headings on light backgrounds */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    margin-bottom: 1rem;
-    line-height: 1.2;
+    color: var(--text-dark);
 }
 
-a {
-    color: var(--secondary-color);
-    text-decoration: none;
-    transition: var(--transition);
+/* Fix card styles universally */
+.card {
+    background-color: white;
+    color: var(--text-dark);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-a:hover {
-    color: #0041cc;
+/* 2. Dashboard page fixes - add to src/styles/dashboard.css */
+
+/* Fix dashboard header */
+.dashboard-header {
+    background: linear-gradient(120deg, var(--primary-dark), var(--primary-main));
 }
 
-button {
-    cursor: pointer;
-    transition: var(--transition);
+.dashboard-header h1,
+.dashboard-header p,
+.dashboard-header .role-badge {
+    color: var(--text-light);
 }
 
-/* Utility classes */
-.container {
+/* Fix stat cards */
+.stat-card {
+    background-color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    height: 4px;
+    background-color: var(--secondary-main);
 }
 
-.text-center {
-    text-align: center;
+.stat-card h3 {
+    color: var(--text-dark);
 }
 
+.stat-card p {
+    color: var(--text-dark-secondary);
+}
+
+.stat-icon {
+    color: var(--secondary-main);
+}
+
+/* Fix action cards - these have colored backgrounds */
+.action-card h3 {
+    color: white;
+}
+
+.action-card p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Fix activity list */
+.activity-list {
+    background-color: white;
+}
+
+.activity-item {
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.activity-icon {
+    background-color: var(--neutral-200);
+    color: var(--secondary-main);
+}
+
+.activity-details h4 {
+    color: var(--text-dark);
+}
+
+.activity-details p {
+    color: var(--text-dark-secondary);
+}
+
+.activity-time {
+    color: var(--neutral-500);
+}
+
+/* Fix insights */
+.insight-card {
+    background-color: white;
+}
+
+.insight-header h3 {
+    color: var(--text-dark);
+}
+
+.insight-value {
+    color: var(--secondary-main);
+}
+
+.insight-content p {
+    color: var(--text-dark-secondary);
+}
+
+/* 3. Product info page fixes - add to src/styles/product-info.css */
+
+/* Fix product details header */
+.product-details-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+}
+
+.product-details-header h1 {
+    color: var(--text-light);
+}
+
+/* Fix info panels */
+.info-panel {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+}
+
+.info-panel h2 {
+    color: var(--text-light);
+}
+
+.info-content {
+    color: var(--text-light);
+}
+
+.info-label {
+    color: var(--text-light-secondary);
+}
+
+.info-value {
+    color: var(--text-light);
+}
+
+/* Fix verification results */
+.verification-result {
+    background-color: white;
+}
+
+.verification-result.authentic {
+    background-color: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.verification-result.counterfeit {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.verification-result h3 {
+    color: var(--accent-green);
+}
+
+.verification-result p {
+    color: var(--text-dark);
+}
+
+/* Fix verification history */
+.verification-history h3 {
+    color: var(--text-dark);
+}
+
+.verification-event {
+    background-color: white;
+}
+
+.verification-icon {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: var(--accent-green);
+}
+
+.verification-date {
+    color: var(--text-dark-secondary);
+}
+
+.verification-address,
+.verification-location {
+    color: var(--text-dark);
+}
+
+/* Fix custody timeline */
+.custody-event .event-date {
+    color: var(--text-dark-secondary);
+}
+
+.custody-event .event-title {
+    color: var(--text-dark);
+}
+
+.custody-event .event-details {
+    background-color: white;
+    color: var(--text-dark);
+}
+
+.event-details p span:first-child {
+    color: var(--text-dark-secondary);
+}
+
+/* 4. Profile page fixes - add to src/styles/profile.css */
+
+/* Fix profile header */
+.profile-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+}
+
+.profile-header h1 {
+    color: var(--text-light);
+}
+
+/* Fix profile card header */
+.profile-card-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+    color: var(--text-light);
+}
+
+.profile-avatar {
+    background: linear-gradient(to bottom right, var(--secondary-main), var(--accent-purple));
+    color: var(--text-light);
+}
+
+.role-badge {
+    color: var(--text-light);
+}
+
+/* Fix profile details */
+.profile-details {
+    background-color: white;
+}
+
+.info-item label {
+    color: var(--text-dark-secondary);
+}
+
+.info-item p {
+    color: var(--text-dark);
+}
+
+/* Fix wallet address style */
+.wallet-address {
+    color: var(--text-dark-secondary);
+    background-color: var(--neutral-100);
+}
+
+.wallet-address i {
+    color: var(--secondary-main);
+}
+
+/* Fix profile form */
+.profile-form {
+    color: var(--text-dark);
+}
+
+.form-header h3 {
+    color: var(--text-dark);
+}
+
+/* Fix role cards */
+.profile-roles h3 {
+    color: var(--text-dark);
+}
+
+.role-card {
+    background-color: white;
+}
+
+.role-card .card-title {
+    color: var(--text-dark);
+}
+
+.role-card .card-text {
+    color: var(--text-dark-secondary);
+}
+
+.role-icon {
+    color: var(--secondary-main);
+}
+
+.role-card.active {
+    border-color: var(--secondary-main);
+}
+
+/* 5. Forms fixes - add to src/styles/forms.css */
+
+/* Fix form container */
+.form-section {
+    background-color: var(--neutral-200);
+}
+
+.form-frame {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+}
+
+.form-header h2 {
+    color: var(--text-light);
+}
+
+/* Fix form controls */
+.form-body label {
+    color: var(--text-light);
+}
+
+.product-form .form-control,
+.verify-form .form-control {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-light);
+}
+
+.product-form .form-control::placeholder,
+.verify-form .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.product-form .form-control:focus,
+.verify-form .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Fix buttons */
+.submit-button {
+    background-color: var(--secondary-main);
+    color: var(--text-light);
+}
+
+.submit-button:hover {
+    background-color: var(--secondary-dark);
+}
+
+/* 6. Authentication page fixes - add to src/styles/auth.css */
+
+/* Fix auth container */
+.auth-section {
+    background-color: var(--neutral-200);
+}
+
+.auth-card {
+    background: linear-gradient(rgba(35, 43, 85, 0.95), rgba(35, 43, 85, 0.8));
+}
+
+.auth-header h2 {
+    color: var(--text-light);
+}
+
+.auth-header p {
+    color: var(--text-light-secondary);
+}
+
+/* Fix auth tabs */
+.auth-tab {
+    color: var(--text-light-secondary);
+}
+
+.auth-tab:hover,
+.auth-tab.active {
+    color: var(--text-light);
+}
+
+/* Fix auth form */
+.auth-form label {
+    color: var(--text-light);
+}
+
+.auth-form .form-control {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-light);
+}
+
+.auth-form .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-form .form-text {
+    color: var(--text-light-secondary);
+}
+
+.auth-submit-button {
+    background-color: var(--secondary-main);
+    color: var(--text-light);
+}
+
+/* Fix error message */
 .error-message {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+    color: var(--accent-red);
 }
 
-/* Loading container */
-.loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-size: 1.2rem;
-    color: var(--primary-color);
+/* 7. Header and footer fixes - add to src/styles/header.css and footer.css */
+
+/* Fix header */
+.main-header {
+    background-color: var(--primary-dark);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .main-content {
-        padding: 1rem 0;
-    }
+.nav-link h5 {
+    color: var(--text-light);
+}
+
+.nav-link a.active {
+    color: var(--secondary-light);
+}
+
+/* Fix footer */
+.footer-section {
+    background: linear-gradient(to bottom, var(--primary-dark), #171b32);
+}
+
+.footer-list h2 {
+    color: var(--text-light);
+}
+
+.footer-list li a {
+    color: var(--text-light-secondary);
+}
+
+.footer-list li a:hover {
+    color: var(--secondary-light);
+}
+
+.copyright a {
+    color: var(--text-light-secondary);
+}
+
+/* 8. Home page fixes - add to src/styles/home.css */
+
+/* Fix hero section */
+.hero-section {
+    background: linear-gradient(rgba(26, 30, 59, 0.85), rgba(45, 51, 103, 0.9)), url('../assets/images/hero-bg.jpg');
+}
+
+.hero-content h1 {
+    color: var(--text-light);
+}
+
+.hero-content p {
+    color: var(--text-light-secondary);
+}
+
+/* Fix section headers */
+.section-header h2 {
+    color: var(--text-dark);
+}
+
+.section-header p {
+    color: var(--text-dark-secondary);
+}
+
+/* Fix verification form */
+.verify-form-frame {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+}
+
+.input-with-button .form-control {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
+}
+
+.input-with-button .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Fix feature cards */
+.feature-card {
+    background-color: white;
+}
+
+.feature-card h3 {
+    color: var(--text-dark);
+}
+
+.feature-card p {
+    color: var(--text-dark-secondary);
+}
+
+.feature-icon {
+    color: var(--secondary-main);
+}
+
+/* Fix benefits section */
+.benefits-content h2 {
+    color: var(--text-dark);
+}
+
+.benefits-list li {
+    color: var(--text-dark);
+}
+
+/* Fix blockchain graphic */
+.block-header {
+    background-color: var(--primary-main);
+    color: var(--text-light);
+}
+
+.block-content .data {
+    color: var(--primary-dark);
 }
