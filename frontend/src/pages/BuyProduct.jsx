@@ -1,8 +1,8 @@
+// src/pages/BuyProduct.jsx
 import { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
-// import { BiScan } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { secretIdState, toastState } from '../store/atoms'
@@ -31,22 +31,22 @@ function BuyProduct() {
         try {
             setLoading(true)
 
-            // This is a placeholder for actual blockchain transaction
-            // We'll simulate a successful purchase for now
+            // This is a placeholder for actual verification
+            // We'll simulate a successful verification for now
             setTimeout(() => {
                 // Reset the form and secret ID state
                 setSecretId('')
                 resetForm()
 
                 // Show success message
-                setToast('Product purchased successfully!')
+                setToast('Product verified successfully!')
 
                 setLoading(false)
                 setSubmitting(false)
             }, 2000)
         } catch (error) {
-            console.error('Error buying product:', error)
-            setToast('Failed to buy product. Verification failed.')
+            console.error('Error verifying product:', error)
+            setToast('Failed to verify product. Verification failed.')
             setLoading(false)
             setSubmitting(false)
         }
@@ -61,7 +61,7 @@ function BuyProduct() {
                     ) : (
                         <>
                             <div className="form-header">
-                                <h2>Enter Secret Key</h2>
+                                <h2>Verify Product</h2>
                             </div>
 
                             <div className="form-body">
@@ -74,12 +74,12 @@ function BuyProduct() {
                                         <Form className="product-form">
                                             <Row className="mb-3">
                                                 <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Secret ID</BootstrapForm.Label>
+                                                    <BootstrapForm.Label>Product ID</BootstrapForm.Label>
                                                     <div className="d-flex">
                                                         <Field
                                                             type="text"
                                                             name="secretId"
-                                                            placeholder="Enter the secret ID"
+                                                            placeholder="Enter the product ID"
                                                             className="form-control"
                                                         />
                                                         <Link
@@ -87,7 +87,7 @@ function BuyProduct() {
                                                             state={{ returnTo: '/buy', stateKey: 'secretIdState' }}
                                                             className="scan-button"
                                                         >
-                                                            <BiScan size={24} />
+                                                            <i className="bi bi-qr-code-scan"></i>
                                                         </Link>
                                                     </div>
                                                     <ErrorMessage name="secretId" component="div" className="error-message" />
@@ -99,7 +99,7 @@ function BuyProduct() {
                                                 className="submit-button"
                                                 disabled={isSubmitting}
                                             >
-                                                {isSubmitting ? 'Processing...' : 'Buy Product'}
+                                                {isSubmitting ? 'Verifying...' : 'Verify Product'}
                                             </Button>
                                         </Form>
                                     )}

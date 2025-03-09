@@ -9,6 +9,7 @@ import '../styles/scanner.css'
 function ScanQR() {
     const [scanError, setScanError] = useState('')
     const [scanning, setScanning] = useState(true)
+    const [scannedData, setScannedData] = useState(null)
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -20,9 +21,18 @@ function ScanQR() {
     const setScannedValue = useSetRecoilState(atoms[stateKey] || atoms.fallbackState)
 
     useEffect(() => {
-        // If no valid return path is provided, we'll still allow scanning
-        // but will redirect to home when done
-    }, [])
+        // If scan already completed, set the value and navigate
+        if (scannedData && !scanning) {
+            setScannedValue(scannedData)
+            
+            // Use setTimeout to ensure state is updated before navigation
+            const timer = setTimeout(() => {
+                navigate(returnTo)
+            }, 800)
+            
+            return () => clearTimeout(timer)
+        }
+    }, [scannedData, scanning, setScannedValue, navigate, returnTo])
 
     // Handle QR scan errors
     const handleScanError = (error) => {
@@ -36,14 +46,7 @@ function ScanQR() {
     const handleScanSuccess = (data) => {
         if (data && data.text && scanning) {
             setScanning(false) // Prevent multiple scans
-
-            // Set the scanned value in the target state
-            setScannedValue(data.text)
-
-            // Navigate back to the return path
-            setTimeout(() => {
-                navigate(returnTo)
-            }, 500)
+            setScannedData(data.text)
         }
     }
 
@@ -55,17 +58,28 @@ function ScanQR() {
             </div>
 
             <div className="scanner-wrapper">
-                <QrReader
-                    delay={300}
-                    onError={handleScanError}
-                    onScan={handleScanSuccess}
-                    style={{ width: '100%' }}
-                    constraints={{
-                        video: { facingMode: 'environment' }
-                    }}
-                />
+                {scanning ? (
+                    <QrReader
+                        delay={300}
+                        onError={handleScanError}
+                        onScan={handleScanSuccess}
+                        style={{ width: '100%' }}
+                        constraints={{
+                            video: { facingMode: 'environment' }
+                        }}
+                    />
+                ) : (
+                    <div className="scan-success">
+                        <div className="success-message">
+                            <i className="bi bi-check-circle-fill"></i>
+                            <p>QR Code Scanned Successfully!</p>
+                        </div>
+                    </div>
+                )}
                 <div className="scanner-overlay">
-                    <div className="scanner-frame"></div>
+                    <div className="scanner-frame">
+                        <div className="scanner-line"></div>
+                    </div>
                 </div>
             </div>
 
@@ -80,6 +94,15 @@ function ScanQR() {
                     </button>
                 </div>
             )}
+            
+            <div className="scanner-actions mt-4">
+                <button 
+                    className="btn btn-secondary"
+                    onClick={() => navigate(returnTo)}
+                >
+                    Cancel Scanning
+                </button>
+            </div>
         </div>
     )
 }

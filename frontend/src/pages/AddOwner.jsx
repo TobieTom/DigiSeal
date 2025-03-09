@@ -1,8 +1,8 @@
+// src/pages/AddOwner.jsx
 import { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
-// import { BiScan } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { newOwnerState, toastState } from '../store/atoms'
@@ -31,10 +31,10 @@ function AddOwner() {
         try {
             setLoading(true)
 
-            // This is a placeholder for actual blockchain transaction
+            // This is a placeholder for actual transfer
             console.log('Transferring ownership to:', values.address)
 
-            // Simulate blockchain transaction
+            // Simulate transaction
             setTimeout(() => {
                 // Reset form and state
                 setNewOwner('')
@@ -81,7 +81,7 @@ function AddOwner() {
                                                         <Field
                                                             type="text"
                                                             name="address"
-                                                            placeholder="New owner's wallet address"
+                                                            placeholder="New owner's address"
                                                             className="form-control"
                                                         />
                                                         <Link
@@ -89,7 +89,7 @@ function AddOwner() {
                                                             state={{ returnTo: '/addowner', stateKey: 'newOwnerState' }}
                                                             className="scan-button"
                                                         >
-                                                            <BiScan size={24} />
+                                                            <i className="bi bi-qr-code-scan"></i>
                                                         </Link>
                                                     </div>
                                                     <ErrorMessage name="address" component="div" className="error-message" />

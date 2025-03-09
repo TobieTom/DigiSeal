@@ -3,8 +3,6 @@ import { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
-// Replace react-icons import with Bootstrap icons
-// import { BiScan } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { buyerAddressState, productIdState, toastState } from '../store/atoms'
@@ -24,8 +22,8 @@ function SellProduct() {
             .max(30, 'Product ID must be less than 30 characters'),
         address: Yup.string()
             .required('Buyer address is required')
-            .max(50, 'Enter a valid wallet address')
-            .min(16, 'Address is too short'),
+            .max(50, 'Enter a valid address')
+            .min(5, 'Address is too short'),
     })
 
     // Initial form values
@@ -39,8 +37,7 @@ function SellProduct() {
         try {
             setLoading(true)
 
-            // This is a placeholder for actual blockchain transaction
-            // Will be replaced with real blockchain interaction
+            // This is a placeholder for actual transaction
             console.log('Selling product:', values)
 
             setTimeout(() => {
@@ -72,7 +69,7 @@ function SellProduct() {
                     ) : (
                         <>
                             <div className="form-header">
-                                <h2>Sell To Other Sellers</h2>
+                                <h2>Sell Product</h2>
                             </div>
 
                             <div className="form-body">
@@ -90,7 +87,7 @@ function SellProduct() {
                                                         <Field
                                                             type="text"
                                                             name="address"
-                                                            placeholder="Buyer's wallet address"
+                                                            placeholder="Buyer's address"
                                                             className="form-control"
                                                         />
                                                         <Link

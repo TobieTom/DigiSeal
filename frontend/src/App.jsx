@@ -10,19 +10,41 @@ function App() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    // When we add blockchain integration, we'll initialize it here
-    // For now, just set loaded to true after a brief delay to simulate loading
-    const timer = setTimeout(() => {
-      setLoaded(true)
-    }, 1000)
+    // Initialize the application
+    const initializeApp = async () => {
+      try {
+        console.log('Initializing application...')
+        
+        // Simulate initialization process
+        setTimeout(() => {
+          console.log('Application initialized')
+          setLoaded(true)
+        }, 1000)
+      } catch (error) {
+        console.error('Error initializing application:', error)
+        // Even on error, we should allow the app to load
+        setLoaded(true)
+      }
+    }
 
-    return () => clearTimeout(timer)
+    initializeApp()
   }, [])
 
   return (
     <div className="app-container">
       <ErrorBoundary>
-        {loaded ? <AppRoutes /> : <div className="loading-container">Loading application...</div>}
+        {loaded ? (
+          <AppRoutes />
+        ) : (
+          <div className="loading-container">
+            <div className="loading-content">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p className="mt-3">Loading application...</p>
+            </div>
+          </div>
+        )}
       </ErrorBoundary>
       <Toast />
     </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { loginState, userRoleState, toastState } from '../../store/atoms'
+import { useAuth } from '../../context/AuthContext'
 import Loader from '../common/Loader'
 import '../../styles/header.css'
 import '../../styles/hamburger.css'
@@ -16,6 +17,7 @@ function Header() {
     const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState)
     const [userRole, setUserRole] = useRecoilState(userRoleState)
     const [isLoading, setIsLoading] = useState(true)
+    const { logout, loading: authLoading } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -50,13 +52,16 @@ function Header() {
     // Handle logout
     const handleLogout = async () => {
         try {
-            // This will be replaced with actual blockchain wallet disconnection
-            localStorage.removeItem('isLoggedIn')
-            localStorage.removeItem('userRole')
-            setIsLoggedIn(false)
-            setUserRole('consumer')
-            setToast('Logged out successfully')
-            navigate('/')
+            const result = await logout()
+            
+            if (result.success) {
+                setIsLoggedIn(false)
+                setUserRole('consumer')
+                setToast('Logged out successfully')
+                navigate('/')
+            } else {
+                setToast('Failed to log out: ' + (result.error || 'Unknown error'))
+            }
         } catch (error) {
             console.error('Logout error:', error)
             setToast('Failed to log out')
@@ -113,12 +118,12 @@ function Header() {
 
                     {isLoggedIn && (
                         <>
-                            {/* Consumer links */}
+                            {/* All user types can verify products */}
                             <div className="nav-link">
                                 <Link to="/buy" className={location.pathname === '/buy' ? 'active' : ''}>
                                     <span>
                                         <i className="bi bi-shield-check"></i>
-                                        <h5>Verify</h5>
+                                        <h5>Verify Product</h5>
                                     </span>
                                 </Link>
                             </div>
@@ -140,6 +145,15 @@ function Header() {
                                             <span>
                                                 <i className="bi bi-arrow-left-right"></i>
                                                 <h5>Transfer</h5>
+                                            </span>
+                                        </Link>
+                                    </div>
+                                    
+                                    <div className="nav-link">
+                                        <Link to="/sell" className={location.pathname === '/sell' ? 'active' : ''}>
+                                            <span>
+                                                <i className="bi bi-cart-check"></i>
+                                                <h5>Sell</h5>
                                             </span>
                                         </Link>
                                     </div>
@@ -171,7 +185,7 @@ function Header() {
                     )}
 
                     <div className="nav-link auth-link">
-                        {isLoading ? (
+                        {isLoading || authLoading ? (
                             <Loader size="fix" />
                         ) : isLoggedIn ? (
                             <button onClick={handleLogout} className="auth-button">

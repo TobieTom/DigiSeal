@@ -6,6 +6,7 @@ import { loginState, userRoleState, toastState } from '../store/atoms'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
+import { useAuth } from '../context/AuthContext'
 import '../styles/auth.css'
 
 function Login() {
@@ -15,7 +16,7 @@ function Login() {
     const [userRole, setUserRole] = useRecoilState(userRoleState)
     const setToast = useSetRecoilState(toastState)
     const [showSignup, setShowSignup] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const { login, loading, error } = useAuth()
 
     // Get the page the user was trying to access before being redirected to login
     const from = location.state?.from?.pathname || '/dashboard'
@@ -30,12 +31,12 @@ function Login() {
 
     // Login validation schema
     const loginSchema = Yup.object({
-        walletAddress: Yup.string().required('Wallet address is required')
+        address: Yup.string().required('Address is required')
     })
 
     // Signup validation schema
     const signupSchema = Yup.object({
-        walletAddress: Yup.string().required('Wallet address is required'),
+        address: Yup.string().required('Address is required'),
         name: Yup.string().required('Name is required'),
         role: Yup.string().required('Please select a role')
     })
@@ -43,12 +44,10 @@ function Login() {
     // Handle login submit
     const handleLoginSubmit = async (values, { setSubmitting }) => {
         try {
-            setLoading(true)
-            // This is a placeholder for actual blockchain authentication
-            console.log('Connecting wallet:', values.walletAddress)
-
-            // Simulate successful login
-            setTimeout(() => {
+            // Connect using the auth context
+            const result = await login(values.address)
+            
+            if (result.success) {
                 setIsLoggedIn(true)
                 // Default to 'consumer' role
                 setUserRole('consumer')
@@ -58,14 +57,14 @@ function Login() {
                 localStorage.setItem('userRole', 'consumer')
 
                 setToast('Logged in successfully')
-                setLoading(false)
-                setSubmitting(false)
                 navigate('/dashboard')
-            }, 1500)
-        } catch (error) {
-            console.error('Login error:', error)
+            } else {
+                setToast('Login failed: ' + (result.error || 'Unknown error'))
+            }
+            setSubmitting(false)
+        } catch (err) {
+            console.error('Login error:', err)
             setToast('Login failed. Please try again.')
-            setLoading(false)
             setSubmitting(false)
         }
     }
@@ -73,28 +72,27 @@ function Login() {
     // Handle signup submit
     const handleSignupSubmit = async (values, { setSubmitting }) => {
         try {
-            setLoading(true)
-            // This is a placeholder for actual blockchain signup/registration
-            console.log('Registering wallet:', values)
-
-            // Simulate successful signup
-            setTimeout(() => {
+            // Connect using the auth context
+            const result = await login(values.address)
+            
+            if (result.success) {
                 setIsLoggedIn(true)
                 setUserRole(values.role)
 
                 // Save to localStorage for persistence
                 localStorage.setItem('isLoggedIn', 'true')
                 localStorage.setItem('userRole', values.role)
+                localStorage.setItem('userName', values.name)
 
                 setToast('Account created successfully')
-                setLoading(false)
-                setSubmitting(false)
                 navigate('/dashboard')
-            }, 1500)
-        } catch (error) {
-            console.error('Signup error:', error)
+            } else {
+                setToast('Account creation failed: ' + (result.error || 'Unknown error'))
+            }
+            setSubmitting(false)
+        } catch (err) {
+            console.error('Signup error:', err)
             setToast('Registration failed. Please try again.')
-            setLoading(false)
             setSubmitting(false)
         }
     }
@@ -106,8 +104,8 @@ function Login() {
                     <div className="auth-header">
                         <h2>{showSignup ? 'Create an account' : 'Login'}</h2>
                         <p>{showSignup
-                            ? 'Register your wallet and start verifying products'
-                            : 'Connect your wallet to access the blockchain verification system'}
+                            ? 'Register your account and start verifying products'
+                            : 'Connect to access the product verification system'}
                         </p>
                     </div>
 
@@ -126,11 +124,17 @@ function Login() {
                         </button>
                     </div>
 
+                    {error && (
+                        <div className="auth-error">
+                            <p>{error}</p>
+                        </div>
+                    )}
+
                     <div className="auth-body">
                         {!showSignup ? (
                             // Login Form
                             <Formik
-                                initialValues={{ walletAddress: '' }}
+                                initialValues={{ address: '' }}
                                 validationSchema={loginSchema}
                                 onSubmit={handleLoginSubmit}
                             >
@@ -138,14 +142,14 @@ function Login() {
                                     <Form className="auth-form">
                                         <Row className="mb-3">
                                             <BootstrapForm.Group as={Col}>
-                                                <BootstrapForm.Label>Wallet Address</BootstrapForm.Label>
+                                                <BootstrapForm.Label>Address</BootstrapForm.Label>
                                                 <Field
                                                     type="text"
-                                                    name="walletAddress"
-                                                    placeholder="Enter your wallet address"
+                                                    name="address"
+                                                    placeholder="Enter your address"
                                                     className="form-control"
                                                 />
-                                                <ErrorMessage name="walletAddress" component="div" className="error-message" />
+                                                <ErrorMessage name="address" component="div" className="error-message" />
                                             </BootstrapForm.Group>
                                         </Row>
 
@@ -154,7 +158,7 @@ function Login() {
                                             className="auth-submit-button"
                                             disabled={isSubmitting || loading}
                                         >
-                                            {loading ? 'Connecting...' : 'Connect Wallet'}
+                                            {loading ? 'Connecting...' : 'Connect'}
                                         </Button>
                                     </Form>
                                 )}
@@ -162,7 +166,7 @@ function Login() {
                         ) : (
                             // Signup Form
                             <Formik
-                                initialValues={{ walletAddress: '', name: '', role: 'consumer' }}
+                                initialValues={{ address: '', name: '', role: 'consumer' }}
                                 validationSchema={signupSchema}
                                 onSubmit={handleSignupSubmit}
                             >
@@ -170,14 +174,14 @@ function Login() {
                                     <Form className="auth-form">
                                         <Row className="mb-3">
                                             <BootstrapForm.Group as={Col}>
-                                                <BootstrapForm.Label>Wallet Address</BootstrapForm.Label>
+                                                <BootstrapForm.Label>Address</BootstrapForm.Label>
                                                 <Field
                                                     type="text"
-                                                    name="walletAddress"
-                                                    placeholder="Enter your wallet address"
+                                                    name="address"
+                                                    placeholder="Enter your address"
                                                     className="form-control"
                                                 />
-                                                <ErrorMessage name="walletAddress" component="div" className="error-message" />
+                                                <ErrorMessage name="address" component="div" className="error-message" />
                                             </BootstrapForm.Group>
                                         </Row>
 

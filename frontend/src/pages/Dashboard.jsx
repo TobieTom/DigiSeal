@@ -18,7 +18,7 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // This would fetch data from blockchain in a real app
+        // This would fetch data from backend in a real app
         const fetchDashboardData = async () => {
             try {
                 // Simulate API call
@@ -48,15 +48,15 @@ function Dashboard() {
                 title: 'Verify Product',
                 description: 'Scan or enter a product ID to verify its authenticity',
                 icon: 'bi bi-shield-check',
-                link: '/buy',
+                link: '/buy', // This now links directly to the verify product page
                 color: '#4361ee'
             },
             {
-                title: 'View Profile',
-                description: 'Manage your account settings and preferences',
-                icon: 'bi bi-person-circle',
-                link: '/profile',
-                color: '#3a0ca3'
+                title: 'Scan QR Code',
+                description: 'Quickly scan a product QR code for verification',
+                icon: 'bi bi-qr-code-scan',
+                link: '/scan',
+                color: '#560bad'
             }
         ];
 
@@ -76,6 +76,20 @@ function Dashboard() {
                     icon: 'bi bi-archive',
                     link: '/products',
                     color: '#f72585'
+                },
+                {
+                    title: 'Transfer Ownership',
+                    description: 'Transfer product ownership to another user',
+                    icon: 'bi bi-arrow-left-right',
+                    link: '/addowner',
+                    color: '#3a0ca3'
+                },
+                {
+                    title: 'Sell Products', 
+                    description: 'Sell products to buyers',
+                    icon: 'bi bi-cart-check',
+                    link: '/sell',
+                    color: '#4cc9f0'
                 }
             ];
         } else if (userRole === 'seller') {
@@ -94,19 +108,26 @@ function Dashboard() {
                     icon: 'bi bi-archive',
                     link: '/products',
                     color: '#4895ef'
+                },
+                {
+                    title: 'Transfer Ownership',
+                    description: 'Transfer product ownership to another user',
+                    icon: 'bi bi-arrow-left-right',
+                    link: '/addowner',
+                    color: '#3a0ca3'
                 }
             ];
         } else {
             // Consumer role
             return [
+                ...commonActions,
                 {
-                    title: 'Scan QR Code',
-                    description: 'Quickly scan a product QR code for verification',
-                    icon: 'bi bi-qr-code-scan',
-                    link: '/scan',
-                    color: '#560bad'
-                },
-                ...commonActions
+                    title: 'My Profile',
+                    description: 'View and edit your profile information',
+                    icon: 'bi bi-person-circle',
+                    link: '/profile',
+                    color: '#3a0ca3'
+                }
             ];
         }
     };

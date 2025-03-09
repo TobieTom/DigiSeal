@@ -4,8 +4,6 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button, Container } from 'react-bootstrap'
-// Fixed icon imports
-// import { BiScan, BiShield, BiCheckShield, BiCertification, BiStore, BiBox } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { productIdHomeState, toastState } from '../store/atoms'
 import '../styles/home.css'
@@ -49,7 +47,7 @@ function Home() {
                         </p>
                         <div className="hero-buttons">
                             <Link to="/scan" className="hero-button primary">
-                                <BiScan size={20} /> Scan QR Code
+                                <i className="bi bi-qr-code-scan"></i> Scan QR Code
                             </Link>
                             <Link to="/login" className="hero-button secondary">
                                 Create Account
@@ -89,7 +87,7 @@ function Home() {
                                                         state={{ returnTo: '/', stateKey: 'productIdHomeState' }}
                                                         className="scan-button-input"
                                                     >
-                                                        <BiScan size={20} />
+                                                        <i className="bi bi-qr-code-scan"></i>
                                                     </Link>
                                                 </div>
                                                 <ErrorMessage name="productId" component="div" className="error-message" />
@@ -121,7 +119,7 @@ function Home() {
                     <div className="features-grid">
                         <div className="feature-card">
                             <div className="feature-icon">
-                                <BiCheckShield size={48} />
+                                <i className="bi bi-shield-check" style={{fontSize: "48px"}}></i>
                             </div>
                             <h3>Verify Authenticity</h3>
                             <p>Instantly verify if a product is authentic using our blockchain technology.</p>
@@ -129,7 +127,7 @@ function Home() {
 
                         <div className="feature-card">
                             <div className="feature-icon">
-                                <BiCertification size={48} />
+                                <i className="bi bi-patch-check" style={{fontSize: "48px"}}></i>
                             </div>
                             <h3>Check History</h3>
                             <p>View complete product information, manufacturing details, and ownership history.</p>
@@ -137,7 +135,7 @@ function Home() {
 
                         <div className="feature-card">
                             <div className="feature-icon">
-                                <BiStore size={48} />
+                                <i className="bi bi-shop" style={{fontSize: "48px"}}></i>
                             </div>
                             <h3>Secure Purchases</h3>
                             <p>Buy with confidence knowing your products are verified and authentic.</p>
@@ -145,7 +143,7 @@ function Home() {
 
                         <div className="feature-card">
                             <div className="feature-icon">
-                                <BiBox size={48} />
+                                <i className="bi bi-box-seam" style={{fontSize: "48px"}}></i>
                             </div>
                             <h3>Track Products</h3>
                             <p>Manufacturers can register products and track their full lifecycle.</p>
@@ -186,7 +184,6 @@ function Home() {
                             </Link>
                         </div>
                         <div className="benefits-image">
-                            {/* This would be an image in a real implementation */}
                             <div className="blockchain-graphic">
                                 <div className="block block-1">
                                     <div className="block-header">Block #1</div>
