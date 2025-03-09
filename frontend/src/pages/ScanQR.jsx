@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import QrReader from 'react-qr-scanner'
 import { useSetRecoilState } from 'recoil'
 import * as atoms from '../store/atoms'
+import { Button } from 'react-bootstrap'
 import '../styles/scanner.css'
 
 function ScanQR() {
@@ -28,7 +29,7 @@ function ScanQR() {
             // Use setTimeout to ensure state is updated before navigation
             const timer = setTimeout(() => {
                 navigate(returnTo)
-            }, 800)
+            }, 1200)
             
             return () => clearTimeout(timer)
         }
@@ -73,6 +74,7 @@ function ScanQR() {
                         <div className="success-message">
                             <i className="bi bi-check-circle-fill"></i>
                             <p>QR Code Scanned Successfully!</p>
+                            <p className="scanned-code">Code: {scannedData}</p>
                         </div>
                     </div>
                 )}
@@ -86,22 +88,27 @@ function ScanQR() {
             {scanError && (
                 <div className="scan-error">
                     <p>{scanError}</p>
-                    <button
-                        className="btn btn-secondary"
+                    <Button
+                        variant="secondary"
                         onClick={() => navigate(returnTo)}
                     >
                         Go Back
-                    </button>
+                    </Button>
                 </div>
             )}
             
             <div className="scanner-actions mt-4">
-                <button 
-                    className="btn btn-secondary"
+                <Button 
+                    variant="secondary"
                     onClick={() => navigate(returnTo)}
+                    className="cancel-button"
                 >
-                    Cancel Scanning
-                </button>
+                    {scanning ? 'Cancel Scanning' : 'Please wait...'}
+                </Button>
+            </div>
+
+            <div className="scanner-tip mt-3">
+                <p><i className="bi bi-info-circle me-2"></i>Make sure the QR code is well-lit and centered in the frame</p>
             </div>
         </div>
     )

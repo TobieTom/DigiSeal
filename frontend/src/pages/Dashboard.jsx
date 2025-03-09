@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Link } from 'react-router-dom';
 import { userRoleState, toastState } from '../store/atoms';
-import { Card, Row, Col, Container } from 'react-bootstrap';
+import { Card, Row, Col, Container, Button } from 'react-bootstrap';
 import '../styles/dashboard.css';
 
 function Dashboard() {
@@ -15,20 +15,82 @@ function Dashboard() {
         pendingTransfers: 0,
         lastActivity: 'Never'
     });
+    const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // This would fetch data from backend in a real app
+        // Mock data fetching from backend
         const fetchDashboardData = async () => {
             try {
                 // Simulate API call
                 setTimeout(() => {
+                    // Generate random stats based on user role
                     setStats({
-                        productsVerified: Math.floor(Math.random() * 10) + 1,
-                        productsOwned: userRole === 'consumer' ? 0 : Math.floor(Math.random() * 5) + 1,
+                        productsVerified: Math.floor(Math.random() * 25) + 5,
+                        productsOwned: userRole === 'consumer' ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 20) + 5,
                         pendingTransfers: Math.floor(Math.random() * 3),
                         lastActivity: new Date().toLocaleDateString()
                     });
+
+                    // Generate mock activity data
+                    const mockActivities = [
+                        {
+                            id: 1,
+                            type: 'verification',
+                            icon: 'bi-shield-check',
+                            title: 'Product Verified',
+                            description: `You verified product ID: PRD-${Math.floor(1000 + Math.random() * 9000)}`,
+                            timestamp: new Date().toLocaleTimeString(),
+                            date: 'Today'
+                        },
+                        {
+                            id: 2,
+                            type: userRole === 'manufacturer' ? 'added' : 'purchase',
+                            icon: userRole === 'manufacturer' ? 'bi-box-seam' : 'bi-cart-check',
+                            title: userRole === 'manufacturer' ? 'Product Added' : 'Product Purchased',
+                            description: userRole === 'manufacturer' 
+                                ? 'Added new product to the blockchain'
+                                : 'Purchased a verified authentic product',
+                            timestamp: '2:30 PM',
+                            date: 'Yesterday'
+                        },
+                        {
+                            id: 3,
+                            type: 'account',
+                            icon: 'bi-person-check',
+                            title: 'Account Login',
+                            description: 'Successfully logged in to your account',
+                            timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
+                            date: 'Today'
+                        }
+                    ];
+
+                    // Add role-specific activities
+                    if (userRole === 'manufacturer') {
+                        mockActivities.splice(1, 0, {
+                            id: 4,
+                            type: 'registration',
+                            icon: 'bi-card-checklist',
+                            title: 'Seller Registered',
+                            description: 'Registered new authorized seller',
+                            timestamp: '10:15 AM',
+                            date: 'Today'
+                        });
+                    }
+
+                    if (userRole === 'seller') {
+                        mockActivities.splice(1, 0, {
+                            id: 5,
+                            type: 'sale',
+                            icon: 'bi-bag-check',
+                            title: 'Product Sold',
+                            description: 'Completed sale and transferred ownership',
+                            timestamp: '11:45 AM',
+                            date: 'Today'
+                        });
+                    }
+
+                    setRecentActivity(mockActivities);
                     setLoading(false);
                 }, 1200);
             } catch (error) {
@@ -48,7 +110,7 @@ function Dashboard() {
                 title: 'Verify Product',
                 description: 'Scan or enter a product ID to verify its authenticity',
                 icon: 'bi bi-shield-check',
-                link: '/buy', // This now links directly to the verify product page
+                link: '/buy',
                 color: '#4361ee'
             },
             {
@@ -85,10 +147,10 @@ function Dashboard() {
                     color: '#3a0ca3'
                 },
                 {
-                    title: 'Sell Products', 
-                    description: 'Sell products to buyers',
-                    icon: 'bi bi-cart-check',
-                    link: '/sell',
+                    title: 'Register Seller', 
+                    description: 'Authorize new sellers for your products',
+                    icon: 'bi bi-person-plus',
+                    link: '/registerSeller',
                     color: '#4cc9f0'
                 }
             ];
@@ -122,6 +184,13 @@ function Dashboard() {
             return [
                 ...commonActions,
                 {
+                    title: 'My Products',
+                    description: 'View your verified authentic products',
+                    icon: 'bi bi-collection',
+                    link: '/products',
+                    color: '#f72585'
+                },
+                {
                     title: 'My Profile',
                     description: 'View and edit your profile information',
                     icon: 'bi bi-person-circle',
@@ -132,10 +201,43 @@ function Dashboard() {
         }
     };
 
+    // Get the role display name
+    const getRoleName = () => {
+        switch (userRole) {
+            case 'manufacturer':
+                return 'Manufacturer';
+            case 'seller':
+                return 'Authorized Seller';
+            default:
+                return 'Consumer';
+        }
+    };
+
+    // Get icon for activity type
+    const getActivityIconClass = (type) => {
+        switch (type) {
+            case 'verification':
+                return 'bi-shield-check';
+            case 'added':
+                return 'bi-box-seam';
+            case 'purchase':
+                return 'bi-cart-check';
+            case 'account':
+                return 'bi-person-check';
+            case 'sale':
+                return 'bi-bag-check';
+            case 'registration':
+                return 'bi-card-checklist';
+            default:
+                return 'bi-clock-history';
+        }
+    };
+
     return (
         <div className="dashboard-container">
             <Container>
                 <div className="dashboard-header">
+                    <div className="role-badge">{getRoleName()}</div>
                     <h1>Welcome to your Dashboard</h1>
                     <p>
                         {userRole === 'manufacturer'
@@ -213,46 +315,178 @@ function Dashboard() {
                     </div>
                 </div>
 
+                {userRole === 'manufacturer' && (
+                    <div className="dashboard-section">
+                        <h2>Manufacturing Insights</h2>
+                        <div className="insights-container">
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Verification Rate</h3>
+                                    <span className="insight-value">94%</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Percentage of your products that have been verified by consumers</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend positive">
+                                        <i className="bi bi-arrow-up"></i> 3.2%
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Transfer Time</h3>
+                                    <span className="insight-value">2.4 days</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Average time for products to transfer between ownership levels</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend negative">
+                                        <i className="bi bi-arrow-up"></i> 0.5 days
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Seller Count</h3>
+                                    <span className="insight-value">18</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Number of authorized sellers distributing your products</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend positive">
+                                        <i className="bi bi-arrow-up"></i> 2
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {userRole === 'seller' && (
+                    <div className="dashboard-section">
+                        <h2>Seller Insights</h2>
+                        <div className="insights-container">
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Sales Conversion</h3>
+                                    <span className="insight-value">84%</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Percentage of verifications that lead to purchase</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend positive">
+                                        <i className="bi bi-arrow-up"></i> 5.1%
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Inventory Age</h3>
+                                    <span className="insight-value">18 days</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Average time products remain in your inventory</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend positive">
+                                        <i className="bi bi-arrow-down"></i> 3 days
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Verification Rate</h3>
+                                    <span className="insight-value">96%</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Percentage of your products that pass verification</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend neutral">
+                                        <i className="bi bi-dash"></i> 0%
+                                    </span>
+                                    <span className="trend-label">vs last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
+                {userRole === 'consumer' && (
+                    <div className="dashboard-section">
+                        <h2>Your Authenticity Insights</h2>
+                        <div className="insights-container">
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Authentic Rate</h3>
+                                    <span className="insight-value">100%</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Percentage of your verified products that are authentic</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend positive">
+                                        <i className="bi bi-check-circle"></i> All Authentic
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="insight-card">
+                                <div className="insight-header">
+                                    <h3>Avg. Value</h3>
+                                    <span className="insight-value">$580</span>
+                                </div>
+                                <div className="insight-content">
+                                    <p>Average value of your verified authentic products</p>
+                                </div>
+                                <div className="insight-footer">
+                                    <span className="trend-label">Based on market data</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="dashboard-section">
-                    <h2>Recent Activity</h2>
+                    <div className="section-header-with-action">
+                        <h2>Recent Activity</h2>
+                        <Button variant="outline-primary" size="sm">View All</Button>
+                    </div>
+                    
                     {loading ? (
-                        <div className="loading-indicator">Loading activity data...</div>
+                        <div className="loading-indicator">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading activity data...</p>
+                        </div>
                     ) : (
                         <div className="activity-list">
-                            <div className="activity-item">
-                                <div className="activity-icon">
-                                    <i className="bi bi-shield-check"></i>
-                                </div>
-                                <div className="activity-details">
-                                    <h4>Product Verified</h4>
-                                    <p>You verified product ID: PRD-{Math.floor(1000 + Math.random() * 9000)}</p>
-                                    <span className="activity-time">Today, {new Date().toLocaleTimeString()}</span>
-                                </div>
-                            </div>
-
-                            {userRole !== 'consumer' && (
-                                <div className="activity-item">
+                            {recentActivity.map((activity) => (
+                                <div key={activity.id} className="activity-item">
                                     <div className="activity-icon">
-                                        <i className="bi bi-box-seam"></i>
+                                        <i className={`bi ${activity.icon}`}></i>
                                     </div>
                                     <div className="activity-details">
-                                        <h4>Product Added</h4>
-                                        <p>Added new product to the blockchain</p>
-                                        <span className="activity-time">Yesterday, 2:30 PM</span>
+                                        <h4>{activity.title}</h4>
+                                        <p>{activity.description}</p>
+                                        <span className="activity-time">{activity.date}, {activity.timestamp}</span>
                                     </div>
                                 </div>
-                            )}
-
-                            <div className="activity-item">
-                                <div className="activity-icon">
-                                    <i className="bi bi-person-check"></i>
-                                </div>
-                                <div className="activity-details">
-                                    <h4>Account Login</h4>
-                                    <p>Successfully logged in to your account</p>
-                                    <span className="activity-time">Today, {new Date().toLocaleTimeString()}</span>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     )}
                 </div>
