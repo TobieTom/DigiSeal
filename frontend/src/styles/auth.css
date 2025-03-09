@@ -1,10 +1,11 @@
-/* src/styles/auth.css */
+/* src/styles/auth.css - Enhanced version */
 .auth-section {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 200px);
     padding: 2rem 1rem;
+    background: linear-gradient(135deg, rgba(246, 247, 249, 0.8), rgba(246, 247, 249, 0.95));
 }
 
 .auth-container {
@@ -13,27 +14,52 @@
 }
 
 .auth-card {
-    background: linear-gradient(rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, rgba(35, 43, 85, 0.9), rgba(35, 43, 85, 0.95));
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: fadeIn 0.5s ease-out;
+    position: relative;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
 }
 
 .auth-header {
-    padding: 2rem 2rem 1rem;
+    padding: 2.5rem 2rem 1.5rem;
     text-align: center;
     color: white;
 }
 
 .auth-header h2 {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.75rem;
+}
+
+.auth-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
 }
 
 .auth-header p {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .auth-tabs {
@@ -44,13 +70,14 @@
 .auth-tab {
     flex: 1;
     text-align: center;
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .auth-tab:hover {
@@ -59,25 +86,36 @@
 
 .auth-tab.active {
     color: white;
-    border-bottom: 3px solid var(--secondary-color);
+}
+
+.auth-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--secondary-color);
 }
 
 .auth-body {
-    padding: 2rem;
+    padding: 2.5rem;
 }
 
 .auth-form .form-control {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: none;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 30px;
-    height: 45px;
+    height: 50px;
     color: white;
     padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
 }
 
 .auth-form .form-control:focus {
-    background-color: rgba(255, 255, 255, 0.2);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(16, 89, 255, 0.2);
     color: white;
 }
 
@@ -92,39 +130,46 @@
 
 .auth-form .form-text {
     color: rgba(255, 255, 255, 0.6);
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    line-height: 1.4;
 }
 
 .auth-form label {
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
 }
 
 .auth-submit-button {
-    background-color: var(--secondary-color);
+    background: linear-gradient(to right, var(--secondary-color), #738df7);
     border: none;
     border-radius: 30px;
-    padding: 0.75rem 2rem;
+    padding: 0.85rem 2rem;
     font-weight: 600;
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 2rem;
     transition: all 0.3s ease;
+    color: white;
+    box-shadow: 0 4px 8px rgba(16, 89, 255, 0.2);
 }
 
 .auth-submit-button:hover {
-    background-color: #0040c1;
-    transform: translateY(-2px);
+    background: linear-gradient(to right, #254EDB, var(--secondary-color));
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(16, 89, 255, 0.3);
 }
 
 .auth-submit-button:disabled {
-    background-color: rgba(16, 89, 255, 0.5);
+    background: linear-gradient(to right, #738df7, #a5b4f9);
     transform: none;
+    box-shadow: none;
+    opacity: 0.7;
 }
 
 .auth-alternatives {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     text-align: center;
 }
 
@@ -143,9 +188,9 @@
 .wallet-button {
     flex: 1;
     background-color: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.85rem;
     color: white;
     display: flex;
     align-items: center;
@@ -155,34 +200,38 @@
 
 .wallet-button:hover {
     background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .wallet-button img {
     height: 24px;
-    margin-right: 0.5rem;
+    margin-right: 0.75rem;
 }
 
 .error-message {
     color: #ff6b6b;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     margin-top: 0.5rem;
     padding-left: 1rem;
 }
 
-/* New styles for auth error */
+/* Auth error alert */
 .auth-error {
-    background-color: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    padding: 0.75rem;
-    margin: 0 2rem;
-    border-radius: 5px;
+    background-color: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+    padding: 1rem;
+    margin: 0 2rem 1.5rem;
+    border-radius: 8px;
     text-align: center;
+    border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
+/* Animation keyframes */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(10px);
     }
 
     to {
@@ -198,10 +247,19 @@
     }
 
     .auth-header {
-        padding: 1.5rem 1.5rem 1rem;
+        padding: 2rem 1.5rem 1rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.75rem;
     }
 
     .auth-body {
         padding: 1.5rem;
+    }
+
+    .auth-tab {
+        padding: 1rem 0.5rem;
+        font-size: 0.9rem;
     }
 }

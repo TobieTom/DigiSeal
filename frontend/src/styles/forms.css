@@ -1,10 +1,17 @@
 .form-section {
     padding: 2rem 0;
+    background: linear-gradient(to bottom, rgba(246, 247, 249, 0.8), rgba(246, 247, 249, 0.9));
 }
 
 .form-container {
-    background: linear-gradient(rgba(246, 247, 249, 0.8), rgba(246, 247, 249, 0.8));
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    background: transparent;
     padding: 3rem 1rem;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .form-frame {
@@ -14,21 +21,34 @@
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    background: linear-gradient(rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
+    background: linear-gradient(135deg, rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
     border-top: solid 1px rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
     transition: all 0.5s ease;
+    overflow: hidden;
+}
+
+/* Add decorative accent to form frame */
+.form-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
 }
 
 .form-header {
     padding-top: 40px;
     text-align: center;
+    width: 100%;
 }
 
 .form-header h2 {
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
     position: relative;
@@ -42,42 +62,49 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: var(--secondary-color);
+    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
 }
 
 .form-body {
     padding: 2rem;
+    width: 100%;
 }
 
 .product-form .form-control,
 .verify-form .form-control {
-    background-color: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 20px;
-    height: 40px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    height: 50px;
     color: white;
-    padding-left: 15px;
+    padding-left: 20px;
     margin-bottom: 20px;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .product-form .form-control:focus,
 .verify-form .form-control:focus {
-    background-color: rgba(255, 255, 255, 0.3);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(115, 141, 247, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .product-form .form-control::placeholder,
 .verify-form .form-control::placeholder {
-    color: #d3d3d3;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .form-body label {
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
     text-transform: uppercase;
-    font-size: 0.8125rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
     display: block;
+    letter-spacing: 0.5px;
+    text-align: left;
+    width: 100%;
 }
 
 .error-message {
@@ -85,34 +112,43 @@
     font-size: 0.75rem;
     margin-top: -15px;
     margin-bottom: 15px;
+    margin-left: 10px;
+    text-align: left;
+    width: 100%;
 }
 
 .submit-button {
-    background-color: var(--secondary-color);
+    background: linear-gradient(to right, var(--secondary-color), #738df7);
     color: white;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.8125rem;
+    font-size: 0.85rem;
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     width: 100%;
-    height: 40px;
-    margin-top: 10px;
-    transition: background-color 0.3s;
+    height: 50px;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px rgba(16, 89, 255, 0.2);
 }
 
 .submit-button:hover,
 .submit-button:active {
-    background-color: #0941c8 !important;
+    background: linear-gradient(to right, #254EDB, var(--secondary-color));
+    transform: translateY(-3px);
+    box-shadow: 0 15px 20px rgba(16, 89, 255, 0.3);
 }
 
 .submit-button:focus {
-    box-shadow: none;
+    box-shadow: 0 0 0 3px rgba(115, 141, 247, 0.5);
 }
 
 .submit-button:disabled {
-    background-color: #8faeff;
+    background: linear-gradient(to right, #738df7, #a5b4f9);
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
 }
 
 .scan-button {
@@ -122,19 +158,71 @@
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    border-radius: 0 20px 20px 0;
-    padding: 0 15px;
+    border-radius: 0 30px 30px 0;
+    padding: 0 20px;
     margin-left: -2px;
-    transition: background-color 0.3s;
+    height: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 10px rgba(16, 89, 255, 0.2);
 }
 
 .scan-button:hover {
-    background-color: #0941c8;
+    background-color: #254EDB;
     color: white;
+}
+
+.scan-button i {
+    font-size: 1.25rem;
 }
 
 .d-flex {
     display: flex;
+    width: 100%;
+}
+
+/* Fix for input with scan button alignment */
+.d-flex .form-control {
+    flex: 1;
+    border-radius: 30px 0 0 30px;
+    border-right: none;
+}
+
+/* Style form textarea for descriptions */
+.product-form textarea.form-control {
+    min-height: 120px;
+    padding-top: 15px;
+    resize: none;
+    border-radius: 20px;
+}
+
+/* Fixing row and column layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    width: 100%;
+}
+
+.col {
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+    width: 100%;
+}
+
+/* Form group styling */
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
 }
 
 /* Login box */
@@ -142,6 +230,7 @@
     padding: 3rem 2rem;
     text-align: center;
     color: white;
+    animation: fadeIn 0.5s ease;
 }
 
 .login-box h2 {
@@ -155,13 +244,63 @@
 
 .login-box button {
     padding: 0.75rem 2rem;
-    background-color: var(--secondary-color);
+    background: linear-gradient(to right, var(--secondary-color), #738df7);
     border: none;
-    transition: background-color 0.3s;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px rgba(16, 89, 255, 0.2);
 }
 
 .login-box button:hover {
-    background-color: #0941c8;
+    background: linear-gradient(to right, #254EDB, var(--secondary-color));
+    transform: translateY(-3px);
+    box-shadow: 0 15px 20px rgba(16, 89, 255, 0.3);
+}
+
+/* Success alert styling */
+.alert {
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+.alert-success {
+    background-color: rgba(52, 211, 153, 0.1);
+    border-color: rgba(52, 211, 153, 0.3);
+    color: #10b981;
+}
+
+.alert i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Button grid */
+.d-grid {
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* Animation for form elements */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-header,
+.form-body {
+    animation: fadeIn 0.5s ease;
 }
 
 /* Responsive adjustments */
@@ -176,5 +315,13 @@
 
     .login-box {
         padding: 2rem 1.5rem;
+    }
+
+    .form-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .product-form textarea.form-control {
+        min-height: 100px;
     }
 }
