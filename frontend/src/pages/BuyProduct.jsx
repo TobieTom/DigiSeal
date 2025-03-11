@@ -6,6 +6,8 @@ import { Form as BootstrapForm, Row, Col, Button, Alert } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { secretIdState, toastState } from '../store/atoms'
+import blockchainService from '../services/BlockchainService'
+import ipfsService from '../services/IPFSService'
 import Loader from '../components/common/Loader'
 import '../styles/forms.css'
 
@@ -20,7 +22,7 @@ function BuyProduct() {
     const validationSchema = Yup.object({
         secretId: Yup.string()
             .required('Product ID is required')
-            .max(30, 'Product ID must be less than 30 characters'),
+            .max(50, 'Product ID must be less than 50 characters'),
     })
 
     // Initial form values
@@ -29,30 +31,46 @@ function BuyProduct() {
     }
 
     // Handle form submission
-    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    const handleSubmit = async (values, { setSubmitting }) => {
         try {
             setLoading(true)
 
-            // Simulate product verification
-            setTimeout(() => {
-                // Simulate success
-                setVerificationSuccess(true)
-                setVerificationResult({
-                    productName: 'Luxury Watch Model X123',
-                    manufacturer: 'Premium Timepieces Ltd.',
-                    manufacturingDate: '2023-06-15',
-                    verificationTime: new Date().toLocaleString()
-                })
-                
-                // Show success message
-                setToast('Product verified successfully!')
+            // Verify product on blockchain
+            const isAuthentic = await blockchainService.verifyProduct(
+                values.secretId,
+                'Web Application' // Location
+            )
 
-                setLoading(false)
-                setSubmitting(false)
-            }, 1500)
+            // Get product details
+            const productDetails = await blockchainService.getProductDetails(values.secretId)
+
+            // Get additional details from IPFS if available
+            let extendedDetails = {}
+            if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+                try {
+                    extendedDetails = await ipfsService.getJSON(productDetails.productDetails)
+                } catch (error) {
+                    console.error('Error fetching IPFS details:', error)
+                }
+            }
+
+            // Create verification result
+            setVerificationResult({
+                productName: extendedDetails.name || productDetails.manufacturerName,
+                manufacturer: productDetails.manufacturerName,
+                manufacturingDate: new Date(productDetails.manufactureDate).toLocaleDateString(),
+                verificationTime: new Date().toLocaleString(),
+                isAuthentic: isAuthentic
+            })
+
+            setVerificationSuccess(true)
+            setToast(isAuthentic ? 'Product verified as authentic!' : 'Warning: Product verification failed!')
+
+            setLoading(false)
+            setSubmitting(false)
         } catch (error) {
             console.error('Error verifying product:', error)
-            setToast('Failed to verify product. Verification failed.')
+            setToast('Failed to verify product: ' + error.message)
             setLoading(false)
             setSubmitting(false)
         }
@@ -121,11 +139,18 @@ function BuyProduct() {
                                 </div>
                             ) : (
                                 <div className="form-body">
-                                    <Alert variant="success" className="text-center mb-4">
-                                        <i className="bi bi-check-circle-fill" style={{ fontSize: '3rem', display: 'block', margin: '0 auto 1rem' }}></i>
-                                        <h4>Product Verified Successfully!</h4>
+                                    <Alert
+                                        variant={verificationResult.isAuthentic ? "success" : "danger"}
+                                        className="text-center mb-4"
+                                    >
+                                        <i className={`bi ${verificationResult.isAuthentic ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`} style={{ fontSize: '3rem', display: 'block', margin: '0 auto 1rem' }}></i>
+                                        <h4>
+                                            {verificationResult.isAuthentic
+                                                ? 'Product Verified Successfully!'
+                                                : 'Verification Failed - Potential Counterfeit!'}
+                                        </h4>
                                     </Alert>
-                                    
+
                                     {verificationResult && (
                                         <div className="product-details p-3 mb-4" style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
                                             <p><strong>Product Name:</strong> {verificationResult.productName}</p>
@@ -134,14 +159,24 @@ function BuyProduct() {
                                             <p className="mb-0"><strong>Verification Time:</strong> {verificationResult.verificationTime}</p>
                                         </div>
                                     )}
-                                    
+
                                     <div className="d-grid">
-                                        <Button 
-                                            variant="outline-light" 
+                                        <Button
+                                            variant="outline-light"
                                             onClick={handleReset}
                                         >
                                             Verify Another Product
                                         </Button>
+
+                                        {!verificationResult.isAuthentic && (
+                                            <Button
+                                                variant="danger"
+                                                className="mt-3"
+                                                onClick={() => {/* Implement report counterfeit function */ }}
+                                            >
+                                                Report Counterfeit
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             )}

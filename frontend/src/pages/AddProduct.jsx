@@ -5,27 +5,32 @@ import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { useSetRecoilState } from 'recoil'
 import { toastState } from '../store/atoms'
+import { useAuth } from '../context/AuthContext'
+import blockchainService from '../services/BlockchainService'
+import ipfsService from '../services/IPFSService'
 import '../styles/forms.css'
 
 function AddProduct() {
     const [productId, setProductId] = useState('')
+    const [loading, setLoading] = useState(false)
     const setToast = useSetRecoilState(toastState)
     const navigate = useNavigate()
+    const { userAddress } = useAuth()
 
     // Validation schema
     const validationSchema = Yup.object({
         name: Yup.string()
             .required('Product name is required')
-            .max(250, 'Product name should be less than 250 characters')
-            .test('no-numbers', 'Numbers are not allowed in product name',
-                value => value && !/\d/.test(value))
-            .test('has-letters', 'Product name must contain letters',
-                value => value && /[a-zA-Z]/.test(value)),
+            .max(250, 'Product name should be less than 250 characters'),
         price: Yup.string()
             .required('Price is required'),
         productId: Yup.string()
             .required('Product ID is required')
             .max(50, 'Product ID should be less than 50 characters'),
+        manufacturingLocation: Yup.string()
+            .required('Manufacturing location is required'),
+        description: Yup.string()
+            .required('Product description is required')
     })
 
     // Initial form values
@@ -33,30 +38,49 @@ function AddProduct() {
         name: '',
         price: '',
         productId: '',
+        manufacturingLocation: '',
+        description: ''
     }
 
     // Handle form submission
     const handleSubmit = async (values, { setSubmitting }) => {
         try {
-            // This is a placeholder - will be replaced with actual blockchain interaction
-            console.log('Adding product:', values)
+            setLoading(true)
 
-            // For now, just simulate success
-            setTimeout(() => {
-                setProductId(values.productId)
-                setToast('Product added successfully')
-                setSubmitting(false)
-            }, 1000)
+            // Store detailed product information in IPFS
+            const productDetails = {
+                name: values.name,
+                price: values.price,
+                description: values.description,
+                specifications: values.specifications || '',
+                dateAdded: new Date().toISOString(),
+                addedBy: userAddress
+            }
+
+            // Upload to IPFS
+            const ipfsHash = await ipfsService.addJSON(productDetails)
+
+            // Register product on blockchain
+            await blockchainService.registerProduct(
+                values.productId,
+                values.name, // Use name as manufacturer name for simplicity
+                ipfsHash, // Store IPFS hash as product details
+                values.manufacturingLocation
+            )
+
+            setProductId(values.productId)
+            setToast('Product added successfully')
+            setLoading(false)
+            setSubmitting(false)
+
+            // Navigate to QR code page
+            navigate(`/qrcode/${values.productId}`)
         } catch (error) {
             console.error('Error adding product:', error)
-            setToast('Failed to add product')
+            setToast('Failed to add product: ' + error.message)
+            setLoading(false)
             setSubmitting(false)
         }
-    }
-
-    // Redirect to QR code page after successful submission
-    if (productId) {
-        return navigate(`/qrcode/${productId}`)
     }
 
     return (
@@ -107,19 +131,46 @@ function AddProduct() {
                                             <Field
                                                 type="text"
                                                 name="productId"
-                                                placeholder="Product ID"
+                                                placeholder="Unique Product ID"
                                                 className="form-control"
                                             />
                                             <ErrorMessage name="productId" component="div" className="error-message" />
                                         </Form.Group>
                                     </Row>
 
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Manufacturing Location</Form.Label>
+                                            <Field
+                                                type="text"
+                                                name="manufacturingLocation"
+                                                placeholder="City, Country"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage name="manufacturingLocation" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
+
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Description</Form.Label>
+                                            <Field
+                                                as="textarea"
+                                                name="description"
+                                                placeholder="Product Description"
+                                                className="form-control"
+                                                rows="4"
+                                            />
+                                            <ErrorMessage name="description" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
+
                                     <Button
                                         type="submit"
                                         className="submit-button"
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || loading}
                                     >
-                                        {isSubmitting ? 'Adding Product...' : 'Add Product'}
+                                        {isSubmitting || loading ? 'Adding Product...' : 'Add Product'}
                                     </Button>
                                 </FormikForm>
                             )}

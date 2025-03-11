@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 import { toastState } from '../store/atoms'
+import blockchainService from '../services/BlockchainService'
+import ipfsService from '../services/IPFSService'
 import Loader from '../components/common/Loader'
 import QRCode from 'react-qr-code'
 import { Button, Badge } from 'react-bootstrap'
@@ -10,8 +12,10 @@ import '../styles/product-info.css'
 
 function ProductInfo() {
     const [productInfo, setProductInfo] = useState(null)
+    const [extendedInfo, setExtendedInfo] = useState(null)
+    const [transferHistory, setTransferHistory] = useState([])
+    const [verificationHistory, setVerificationHistory] = useState([])
     const [loading, setLoading] = useState(true)
-    const [showQRModal, setShowQRModal] = useState(false)
     const setToast = useSetRecoilState(toastState)
     const { id: productId } = useParams()
 
@@ -20,69 +24,35 @@ function ProductInfo() {
             try {
                 setLoading(true)
 
-                // This is a placeholder for actual blockchain data fetching
-                // We'll simulate fetching product data
-                setTimeout(() => {
-                    // Mock product data
-                    setProductInfo({
-                        name: 'Luxury Watch Model X123',
-                        price: '1999.99',
-                        isSold: false,
-                        manufacturer: 'Premium Timepieces Ltd.',
-                        manufacturerAddress: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-                        productionDate: '2023-06-15',
-                        specifications: 'Swiss movement, sapphire crystal, water resistant to 100m',
-                        serialNumber: 'SN-' + Math.random().toString(16).slice(2, 10).toUpperCase(),
-                        warranty: {
-                            period: '2 years',
-                            expiryDate: '2025-06-15',
-                            terms: 'Limited warranty against manufacturing defects'
-                        },
-                        materials: ['316L Stainless Steel', 'Sapphire Crystal', 'Leather Strap'],
-                        verifications: [
-                            {
-                                date: new Date().toISOString(),
-                                address: '0x' + Math.random().toString(16).slice(2, 42),
-                                location: 'New York, USA',
-                                result: 'authentic'
-                            },
-                            {
-                                date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                                address: '0x' + Math.random().toString(16).slice(2, 42),
-                                location: 'Los Angeles, USA',
-                                result: 'authentic'
-                            }
-                        ],
-                        transferHistory: [
-                            {
-                                date: '2023-06-15',
-                                event: 'Manufactured',
-                                from: 'Premium Timepieces Ltd.',
-                                to: 'Premium Timepieces Ltd.',
-                                transactionHash: '0x' + Math.random().toString(16).slice(2, 42)
-                            },
-                            {
-                                date: '2023-06-30',
-                                event: 'Transferred to Distributor',
-                                from: 'Premium Timepieces Ltd.',
-                                to: 'Luxury Goods Distribution Inc.',
-                                transactionHash: '0x' + Math.random().toString(16).slice(2, 42)
-                            },
-                            {
-                                date: '2023-07-15',
-                                event: 'Received by Retailer',
-                                from: 'Luxury Goods Distribution Inc.',
-                                to: 'Elite Watch Boutique',
-                                transactionHash: '0x' + Math.random().toString(16).slice(2, 42)
-                            }
-                        ]
-                    })
+                // Initialize blockchain service
+                await blockchainService.init()
 
-                    setLoading(false)
-                }, 1500)
+                // Fetch product details from blockchain
+                const productDetails = await blockchainService.getProductDetails(productId)
+                setProductInfo(productDetails)
+
+                // Fetch extended details from IPFS if available
+                if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+                    try {
+                        const ipfsData = await ipfsService.getJSON(productDetails.productDetails)
+                        setExtendedInfo(ipfsData)
+                    } catch (error) {
+                        console.error('Error fetching IPFS details:', error)
+                    }
+                }
+
+                // Fetch transfer history
+                const history = await blockchainService.getTransferHistory(productId)
+                setTransferHistory(history)
+
+                // Fetch verification history
+                const verifications = await blockchainService.getVerificationHistory(productId)
+                setVerificationHistory(verifications)
+
+                setLoading(false)
             } catch (error) {
                 console.error('Error fetching product info:', error)
-                setToast('Failed to fetch product information')
+                setToast('Failed to fetch product information: ' + error.message)
                 setLoading(false)
             }
         }
@@ -92,28 +62,22 @@ function ProductInfo() {
         }
     }, [productId, setToast])
 
-    const handleVerifyClick = () => {
-        setToast('Verification process started')
-        // Here we would initiate a new verification
-        setTimeout(() => {
-            // Update verification history with new verification
-            if (productInfo) {
-                const updatedProduct = { 
-                    ...productInfo,
-                    verifications: [
-                        {
-                            date: new Date().toISOString(),
-                            address: '0x' + Math.random().toString(16).slice(2, 42),
-                            location: 'Current Location',
-                            result: 'authentic'
-                        },
-                        ...productInfo.verifications
-                    ]
-                }
-                setProductInfo(updatedProduct)
-                setToast('Product verified successfully!')
-            }
-        }, 1000)
+    const handleVerifyClick = async () => {
+        try {
+            setToast('Verification process started')
+
+            // Verify on blockchain
+            const isAuthentic = await blockchainService.verifyProduct(productId, 'Product Info Page')
+
+            // Refresh verification history
+            const updatedVerifications = await blockchainService.getVerificationHistory(productId)
+            setVerificationHistory(updatedVerifications)
+
+            setToast(isAuthentic ? 'Product verified successfully!' : 'Warning: Product verification failed!')
+        } catch (error) {
+            console.error('Error verifying product:', error)
+            setToast('Verification failed: ' + error.message)
+        }
     }
 
     if (loading) {
@@ -135,10 +99,10 @@ function ProductInfo() {
     return (
         <div className="product-info-container">
             <div className="product-details-header">
-                <h1>{productInfo.name}</h1>
+                <h1>{extendedInfo?.name || productInfo.manufacturerName}</h1>
                 <div className="product-status">
-                    <Badge bg={productInfo.isSold ? 'danger' : 'success'} className="status-badge">
-                        {productInfo.isSold ? 'Sold' : 'Available'}
+                    <Badge bg={productInfo.status === 'Sold' ? 'danger' : 'success'} className="status-badge">
+                        {productInfo.status}
                     </Badge>
                 </div>
             </div>
@@ -146,7 +110,7 @@ function ProductInfo() {
             <div className="auth-ribbon">
                 <div className="ribbon-content">
                     <i className="bi bi-shield-check"></i>
-                    <span>Blockchain Verified Authentic</span>
+                    <span>{productInfo.isAuthentic ? 'Blockchain Verified Authentic' : 'Verification Status: Failed'}</span>
                 </div>
             </div>
 
@@ -160,32 +124,32 @@ function ProductInfo() {
                         </p>
                         <p>
                             <span className="info-label">Price:</span>
-                            <span className="info-value">${productInfo.price}</span>
+                            <span className="info-value">${extendedInfo?.price || 'N/A'}</span>
                         </p>
                         <p>
                             <span className="info-label">Manufacturer:</span>
-                            <span className="info-value">{productInfo.manufacturer}</span>
+                            <span className="info-value">{productInfo.manufacturerName}</span>
                         </p>
                         <p>
                             <span className="info-label">Production Date:</span>
-                            <span className="info-value">{productInfo.productionDate}</span>
+                            <span className="info-value">{new Date(productInfo.manufactureDate).toLocaleDateString()}</span>
                         </p>
                         <p>
-                            <span className="info-label">Serial Number:</span>
-                            <span className="info-value">{productInfo.serialNumber}</span>
+                            <span className="info-label">Manufacturing Location:</span>
+                            <span className="info-value">{productInfo.manufacturingLocation}</span>
                         </p>
-                        <p>
-                            <span className="info-label">Warranty:</span>
-                            <span className="info-value">{productInfo.warranty.period}</span>
-                        </p>
-                        <p>
-                            <span className="info-label">Materials:</span>
-                            <span className="info-value">{productInfo.materials.join(', ')}</span>
-                        </p>
-                        <p>
-                            <span className="info-label">Specifications:</span>
-                            <span className="info-value">{productInfo.specifications}</span>
-                        </p>
+                        {extendedInfo?.specifications && (
+                            <p>
+                                <span className="info-label">Specifications:</span>
+                                <span className="info-value">{extendedInfo.specifications}</span>
+                            </p>
+                        )}
+                        {extendedInfo?.description && (
+                            <p>
+                                <span className="info-label">Description:</span>
+                                <span className="info-value">{extendedInfo.description}</span>
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -194,9 +158,9 @@ function ProductInfo() {
                     <div className="qr-code-container">
                         <QRCode value={productId} size={200} />
                         <p className="qr-instruction">Scan to verify product authenticity</p>
-                        
-                        <Button 
-                            variant="primary" 
+
+                        <Button
+                            variant="primary"
                             className="mt-3 verify-button"
                             onClick={handleVerifyClick}
                         >
@@ -207,59 +171,76 @@ function ProductInfo() {
                 </div>
             </div>
 
-            <div className="verification-result authentic">
-                <h3><i className="bi bi-shield-check"></i> Product Verified</h3>
-                <p>This product has been verified as authentic on the blockchain.</p>
-                <p>Last verification: {new Date(productInfo.verifications[0].date).toLocaleString()}</p>
+            <div className={`verification-result ${productInfo.isAuthentic ? 'authentic' : 'counterfeit'}`}>
+                <h3>
+                    <i className={`bi ${productInfo.isAuthentic ? 'bi-shield-check' : 'bi-shield-x'}`}></i>
+                    {productInfo.isAuthentic ? 'Product Verified' : 'Verification Failed'}
+                </h3>
+                <p>
+                    {productInfo.isAuthentic
+                        ? 'This product has been verified as authentic on the blockchain.'
+                        : 'Warning: This product could not be verified as authentic.'}
+                </p>
+                {verificationHistory.length > 0 && (
+                    <p>Last verification: {new Date(verificationHistory[0].timestamp).toLocaleString()}</p>
+                )}
             </div>
 
             <div className="verification-history">
                 <h3>Verification History</h3>
                 <div className="verification-list">
-                    {productInfo.verifications.map((verification, index) => (
-                        <div key={index} className="verification-event">
-                            <div className="verification-icon">
-                                <i className={`bi bi-${verification.result === 'authentic' ? 'shield-check' : 'shield-x'}`}></i>
+                    {verificationHistory.length === 0 ? (
+                        <p>No verification history available.</p>
+                    ) : (
+                        verificationHistory.map((verification, index) => (
+                            <div key={index} className="verification-event">
+                                <div className="verification-icon">
+                                    <i className={`bi ${verification.result ? 'bi-shield-check' : 'bi-shield-x'}`}></i>
+                                </div>
+                                <div className="verification-details">
+                                    <div className="verification-date">
+                                        {new Date(verification.timestamp).toLocaleString()}
+                                    </div>
+                                    <div className="verification-status">
+                                        <Badge
+                                            bg={verification.result ? 'success' : 'danger'}
+                                        >
+                                            {verification.result ? 'Authentic' : 'Failed'}
+                                        </Badge>
+                                    </div>
+                                    <div className="verification-address">
+                                        Address: <span className="monospace">{verification.verifier}</span>
+                                    </div>
+                                    <div className="verification-location">
+                                        Location: {verification.location}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="verification-details">
-                                <div className="verification-date">
-                                    {new Date(verification.date).toLocaleString()}
-                                </div>
-                                <div className="verification-status">
-                                    <Badge 
-                                        bg={verification.result === 'authentic' ? 'success' : 'danger'}
-                                    >
-                                        {verification.result === 'authentic' ? 'Authentic' : 'Fake'}
-                                    </Badge>
-                                </div>
-                                <div className="verification-address">
-                                    Address: <span className="monospace">{verification.address}</span>
-                                </div>
-                                <div className="verification-location">
-                                    Location: {verification.location}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
             <div className="chain-of-custody">
                 <h3>Ownership History</h3>
                 <div className="custody-timeline">
-                    {productInfo.transferHistory.map((event, index) => (
-                        <div key={index} className="custody-event">
-                            <div className="event-date">{event.date}</div>
-                            <div className="event-title">{event.event}</div>
-                            <div className="event-details">
-                                <p><span>From:</span> {event.from}</p>
-                                <p><span>To:</span> {event.to}</p>
-                                <p className="transaction-hash">
-                                    <span>TX:</span> <span className="monospace">{event.transactionHash}</span>
-                                </p>
+                    {transferHistory.length === 0 ? (
+                        <p>No transfer history available.</p>
+                    ) : (
+                        transferHistory.map((event, index) => (
+                            <div key={index} className="custody-event">
+                                <div className="event-date">{new Date(event.timestamp).toLocaleDateString()}</div>
+                                <div className="event-title">Ownership Transfer</div>
+                                <div className="event-details">
+                                    <p><span>From:</span> {event.from}</p>
+                                    <p><span>To:</span> {event.to}</p>
+                                    {event.transferConditions && (
+                                        <p><span>Conditions:</span> {event.transferConditions}</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
@@ -273,8 +254,6 @@ function ProductInfo() {
                     Print Certificate
                 </Button>
             </div>
-
-            {/* QR Code Modal would be implemented here with a bootstrap modal component */}
         </div>
     )
 }

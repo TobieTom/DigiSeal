@@ -1,5 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react'
+import blockchainService from '../services/BlockchainService'
 
 // Create context
 const AuthContext = createContext(null)
@@ -8,40 +9,44 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [userAddress, setUserAddress] = useState('')
+    const [userRole, setUserRole] = useState('consumer')
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
 
-    // Login function
+    // Login function (connect to blockchain wallet)
     const login = async (address = null) => {
         try {
             setLoading(true)
             setError(null)
 
-            // This is a placeholder for actual login logic
-            // Simulate API call with timeout
-            const result = await new Promise(resolve => {
-                setTimeout(() => {
-                    // Generate a mock address if none provided
-                    const mockAddress = address || '0x' + Math.random().toString(16).substr(2, 40)
-                    resolve({
-                        success: true,
-                        address: mockAddress,
-                        isAuthenticated: true
-                    })
-                }, 1000)
-            })
+            // Initialize blockchain service
+            await blockchainService.init()
 
-            if (result.success) {
-                setIsLoggedIn(true)
-                setUserAddress(result.address)
+            // Get connected account
+            const account = address || await blockchainService.getCurrentAccount()
 
-                // Save to localStorage for persistence
-                localStorage.setItem('isLoggedIn', 'true')
-                localStorage.setItem('userAddress', result.address)
+            if (!account) {
+                throw new Error('No account found. Please make sure your wallet is connected.')
+            }
 
-                return result
-            } else {
-                throw new Error('Login failed')
+            // Get user role
+            const roleData = await blockchainService.getUserRole(account)
+
+            // Successful connection
+            setIsLoggedIn(true)
+            setUserAddress(account)
+            setUserRole(roleData.role)
+
+            // Save to localStorage for persistence
+            localStorage.setItem('isLoggedIn', 'true')
+            localStorage.setItem('userAddress', account)
+            localStorage.setItem('userRole', roleData.role)
+
+            return {
+                success: true,
+                address: account,
+                role: roleData.role,
+                isAuthenticated: true
             }
         } catch (error) {
             setError(error.message)
@@ -57,29 +62,19 @@ export function AuthProvider({ children }) {
             setLoading(true)
             setError(null)
 
-            // This is a placeholder for actual logout logic
-            // Simulate API call with timeout
-            const result = await new Promise(resolve => {
-                setTimeout(() => {
-                    resolve({
-                        success: true,
-                        message: 'Logged out successfully'
-                    })
-                }, 500)
-            })
+            // Clear state
+            setIsLoggedIn(false)
+            setUserAddress('')
+            setUserRole('consumer')
 
-            if (result.success) {
-                setIsLoggedIn(false)
-                setUserAddress('')
+            // Clear localStorage
+            localStorage.removeItem('isLoggedIn')
+            localStorage.removeItem('userAddress')
+            localStorage.removeItem('userRole')
 
-                // Clear localStorage
-                localStorage.removeItem('isLoggedIn')
-                localStorage.removeItem('userAddress')
-                localStorage.removeItem('userRole')
-
-                return result
-            } else {
-                throw new Error('Logout failed')
+            return {
+                success: true,
+                message: 'Logged out successfully'
             }
         } catch (error) {
             setError(error.message)
@@ -91,13 +86,31 @@ export function AuthProvider({ children }) {
 
     // Check if user is logged in on component mount
     useEffect(() => {
-        const checkLoginStatus = () => {
+        const checkLoginStatus = async () => {
             const savedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
             const savedUserAddress = localStorage.getItem('userAddress')
+            const savedUserRole = localStorage.getItem('userRole')
 
             if (savedIsLoggedIn && savedUserAddress) {
-                setIsLoggedIn(true)
-                setUserAddress(savedUserAddress)
+                try {
+                    // Verify connection to blockchain
+                    await blockchainService.init()
+                    const accounts = await blockchainService.web3.eth.getAccounts()
+
+                    // Check if saved address matches any of the current accounts
+                    if (accounts.includes(savedUserAddress)) {
+                        setIsLoggedIn(true)
+                        setUserAddress(savedUserAddress)
+                        setUserRole(savedUserRole || 'consumer')
+                    } else {
+                        // Address has changed, log out
+                        logout()
+                    }
+                } catch (error) {
+                    console.error('Error checking login status:', error)
+                    // If blockchain connection fails, clear login state
+                    logout()
+                }
             }
         }
 
@@ -108,6 +121,7 @@ export function AuthProvider({ children }) {
     const value = {
         isLoggedIn,
         userAddress,
+        userRole,
         loading,
         error,
         login,

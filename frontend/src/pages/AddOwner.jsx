@@ -5,12 +5,14 @@ import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { newOwnerState, toastState } from '../store/atoms'
+import { newOwnerState, productIdState, toastState } from '../store/atoms'
+import blockchainService from '../services/BlockchainService'
 import Loader from '../components/common/Loader'
 import '../styles/forms.css'
 
 function AddOwner() {
     const [newOwner, setNewOwner] = useRecoilState(newOwnerState)
+    const [productId, setProductId] = useRecoilState(productIdState)
     const setToast = useSetRecoilState(toastState)
     const [loading, setLoading] = useState(false)
 
@@ -18,12 +20,17 @@ function AddOwner() {
     const validationSchema = Yup.object({
         address: Yup.string()
             .required('Owner address is required')
-            .max(60, 'Address is too long'),
+            .matches(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum address format'),
+        productId: Yup.string()
+            .required('Product ID is required'),
+        transferConditions: Yup.string()
     })
 
     // Initial form values
     const initialValues = {
         address: newOwner || '',
+        productId: productId || '',
+        transferConditions: ''
     }
 
     // Handle form submission
@@ -31,24 +38,26 @@ function AddOwner() {
         try {
             setLoading(true)
 
-            // This is a placeholder for actual transfer
-            console.log('Transferring ownership to:', values.address)
+            // Transfer ownership on blockchain
+            await blockchainService.transferOwnership(
+                values.productId,
+                values.address,
+                values.transferConditions
+            )
 
-            // Simulate transaction
-            setTimeout(() => {
-                // Reset form and state
-                setNewOwner('')
-                resetForm()
+            // Reset form and state
+            setNewOwner('')
+            setProductId('')
+            resetForm()
 
-                // Show success message
-                setToast('Ownership transferred successfully!')
+            // Show success message
+            setToast('Ownership transferred successfully!')
 
-                setLoading(false)
-                setSubmitting(false)
-            }, 2000)
+            setLoading(false)
+            setSubmitting(false)
         } catch (error) {
             console.error('Error transferring ownership:', error)
-            setToast('Failed to transfer ownership. Please try again.')
+            setToast('Failed to transfer ownership: ' + error.message)
             setLoading(false)
             setSubmitting(false)
         }
@@ -76,6 +85,28 @@ function AddOwner() {
                                         <Form className="product-form">
                                             <Row className="mb-3">
                                                 <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Product ID</BootstrapForm.Label>
+                                                    <div className="d-flex">
+                                                        <Field
+                                                            type="text"
+                                                            name="productId"
+                                                            placeholder="Product ID"
+                                                            className="form-control"
+                                                        />
+                                                        <Link
+                                                            to="/scan"
+                                                            state={{ returnTo: '/addowner', stateKey: 'productIdState' }}
+                                                            className="scan-button"
+                                                        >
+                                                            <i className="bi bi-qr-code-scan"></i>
+                                                        </Link>
+                                                    </div>
+                                                    <ErrorMessage name="productId" component="div" className="error-message" />
+                                                </BootstrapForm.Group>
+                                            </Row>
+
+                                            <Row className="mb-3">
+                                                <BootstrapForm.Group as={Col}>
                                                     <BootstrapForm.Label>New Owner's Address</BootstrapForm.Label>
                                                     <div className="d-flex">
                                                         <Field
@@ -93,6 +124,20 @@ function AddOwner() {
                                                         </Link>
                                                     </div>
                                                     <ErrorMessage name="address" component="div" className="error-message" />
+                                                </BootstrapForm.Group>
+                                            </Row>
+
+                                            <Row className="mb-3">
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Transfer Conditions (Optional)</BootstrapForm.Label>
+                                                    <Field
+                                                        as="textarea"
+                                                        name="transferConditions"
+                                                        placeholder="E.g., Shipped via secure courier, temperature controlled"
+                                                        className="form-control"
+                                                        rows="3"
+                                                    />
+                                                    <ErrorMessage name="transferConditions" component="div" className="error-message" />
                                                 </BootstrapForm.Group>
                                             </Row>
 

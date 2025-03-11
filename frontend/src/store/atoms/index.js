@@ -10,7 +10,7 @@ export const loginState = atom({
 // User role state
 export const userRoleState = atom({
     key: 'userRoleState',
-    default: 'consumer', // Default to consumer role
+    default: localStorage.getItem('userRole') || 'consumer',
 })
 
 // Toast notifications
