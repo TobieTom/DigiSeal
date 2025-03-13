@@ -1,7 +1,6 @@
 import Web3 from 'web3';
 import TruffleContract from '@truffle/contract';
-import ProductVerificationArtifact from '../../blockchain/build/contracts/ProductVerification.json';
-import config from '../config/blockchain';
+import ProductVerificationArtifact from '../../blockchain/build/contracts/ProductVerification.json'; // Adjust path as needed
 
 class BlockchainService {
     constructor() {
@@ -13,7 +12,7 @@ class BlockchainService {
     }
 
     async init() {
-        if (this.initialized) return true;
+        if (this.initialized) return;
 
         try {
             // Modern dapp browsers
@@ -22,49 +21,18 @@ class BlockchainService {
                 try {
                     // Request account access
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                    // Switch to correct network if needed
-                    const chainId = await this.web3.eth.getChainId();
-                    if (chainId !== config.networkId) {
-                        try {
-                            await window.ethereum.request({
-                                method: 'wallet_switchEthereumChain',
-                                params: [{ chainId: this.web3.utils.toHex(config.networkId) }],
-                            });
-                        } catch (switchError) {
-                            // This error code indicates that the chain has not been added to MetaMask
-                            if (switchError.code === 4902) {
-                                await window.ethereum.request({
-                                    method: 'wallet_addEthereumChain',
-                                    params: [{
-                                        chainId: this.web3.utils.toHex(config.networkId),
-                                        chainName: config.chainName,
-                                        rpcUrls: [config.rpcUrl],
-                                        blockExplorerUrls: [config.explorerUrl],
-                                        nativeCurrency: {
-                                            name: "Ethereum",
-                                            symbol: "ETH",
-                                            decimals: 18
-                                        }
-                                    }],
-                                });
-                            } else {
-                                throw switchError;
-                            }
-                        }
-                    }
                 } catch (error) {
-                    console.error("User denied account access or network switch");
-                    throw new Error("User denied account access or network switch");
+                    console.error("User denied account access");
+                    throw new Error("User denied account access");
                 }
             }
             // Legacy dapp browsers
             else if (window.web3) {
                 this.web3 = new Web3(window.web3.currentProvider);
             }
-            // Fallback to specified RPC URL
+            // If no injected web3 instance is detected, fall back to Ganache
             else {
-                const provider = new Web3.providers.HttpProvider(config.rpcUrl);
+                const provider = new Web3.providers.HttpProvider('http://localhost:8545');
                 this.web3 = new Web3(provider);
             }
 
@@ -76,11 +44,10 @@ class BlockchainService {
             ProductVerification.setProvider(this.web3.currentProvider);
 
             try {
-                // Use deployed contract on the network
-                this.productVerification = await ProductVerification.at(config.contractAddress);
+                this.productVerification = await ProductVerification.deployed();
             } catch (error) {
-                console.error("Error connecting to contract:", error);
-                throw new Error("Failed to connect to contract. Make sure you're on the right network.");
+                console.error("Contract not deployed on this network:", error);
+                throw new Error("Contract not deployed on this network");
             }
 
             this.initialized = true;
@@ -93,7 +60,6 @@ class BlockchainService {
 
     async getCurrentAccount() {
         if (!this.initialized) await this.init();
-        this.accounts = await this.web3.eth.getAccounts();
         return this.accounts[0];
     }
 
@@ -101,7 +67,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = await this.getCurrentAccount();
+            const account = this.accounts[0];
             return await this.productVerification.registerProduct(
                 productId,
                 manufacturerName,
@@ -119,7 +85,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = await this.getCurrentAccount();
+            const account = this.accounts[0];
             const result = await this.productVerification.verifyProduct(
                 productId,
                 location || 'Unknown',
@@ -163,7 +129,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = await this.getCurrentAccount();
+            const account = this.accounts[0];
             return await this.productVerification.transferOwnership(
                 productId,
                 newOwner,
@@ -218,7 +184,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = await this.getCurrentAccount();
+            const account = this.accounts[0];
             return await this.productVerification.reportCounterfeit(
                 productId,
                 evidenceHash || '',
@@ -236,7 +202,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = await this.getCurrentAccount();
+            const account = this.accounts[0];
             return await this.productVerification.registerSeller(
                 sellerAddress,
                 { from: account }
@@ -251,7 +217,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || await this.getCurrentAccount();
+            const account = address || this.accounts[0];
 
             // Check roles
             const MANUFACTURER_ROLE = this.web3.utils.soliditySha3("MANUFACTURER_ROLE");
@@ -278,7 +244,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || await this.getCurrentAccount();
+            const account = address || this.accounts[0];
             const productIds = await this.productVerification.getProductsOwned(account);
             return productIds;
         } catch (error) {
@@ -291,7 +257,7 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || await this.getCurrentAccount();
+            const account = address || this.accounts[0];
             const productIds = await this.productVerification.getProductsManufactured(account);
             return productIds;
         } catch (error) {

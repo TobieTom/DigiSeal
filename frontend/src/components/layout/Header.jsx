@@ -5,6 +5,7 @@ import { useRecoilState, useSetRecoilState } from 'recoil'
 import { loginState, userRoleState, toastState } from '../../store/atoms'
 import { useAuth } from '../../context/AuthContext'
 import Loader from '../common/Loader'
+import NetworkIndicator from '../common/NetworkIndicator'
 import '../../styles/header.css'
 import '../../styles/hamburger.css'
 
@@ -102,6 +103,7 @@ function Header() {
                             <i className="bi bi-qr-code-scan"></i>
                             <span>Scan QR</span>
                         </Link>
+                        <NetworkIndicator />
                     </div>
                 </div>
 

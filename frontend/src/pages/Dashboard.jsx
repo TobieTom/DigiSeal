@@ -4,6 +4,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Link } from 'react-router-dom';
 import { userRoleState, toastState } from '../store/atoms';
 import { Card, Row, Col, Container, Button } from 'react-bootstrap';
+import BlockchainStatus from '../components/common/BlockchainStatus';
+import blockchainService from '../services/BlockchainService';
 import '../styles/dashboard.css';
 
 function Dashboard() {
@@ -17,82 +19,62 @@ function Dashboard() {
     });
     const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userAddress, setUserAddress] = useState('');
+    const [blockchainInitialized, setBlockchainInitialized] = useState(false);
+
+    useEffect(() => {
+        // Initialize blockchain service
+        const initBlockchain = async () => {
+            try {
+                await blockchainService.init();
+                const account = await blockchainService.getCurrentAccount();
+                setUserAddress(account);
+                setBlockchainInitialized(true);
+            } catch (error) {
+                console.error('Error initializing blockchain:', error);
+                setToast('Failed to connect to blockchain. Please check your wallet connection.');
+            }
+        };
+
+        initBlockchain();
+    }, [setToast]);
 
     useEffect(() => {
         // Mock data fetching from backend
         const fetchDashboardData = async () => {
             try {
-                // Simulate API call
-                setTimeout(() => {
-                    // Generate random stats based on user role
-                    setStats({
-                        productsVerified: Math.floor(Math.random() * 25) + 5,
-                        productsOwned: userRole === 'consumer' ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 20) + 5,
-                        pendingTransfers: Math.floor(Math.random() * 3),
-                        lastActivity: new Date().toLocaleDateString()
-                    });
+                setLoading(true);
 
-                    // Generate mock activity data
-                    const mockActivities = [
-                        {
-                            id: 1,
-                            type: 'verification',
-                            icon: 'bi-shield-check',
-                            title: 'Product Verified',
-                            description: `You verified product ID: PRD-${Math.floor(1000 + Math.random() * 9000)}`,
-                            timestamp: new Date().toLocaleTimeString(),
-                            date: 'Today'
-                        },
-                        {
-                            id: 2,
-                            type: userRole === 'manufacturer' ? 'added' : 'purchase',
-                            icon: userRole === 'manufacturer' ? 'bi-box-seam' : 'bi-cart-check',
-                            title: userRole === 'manufacturer' ? 'Product Added' : 'Product Purchased',
-                            description: userRole === 'manufacturer' 
-                                ? 'Added new product to the blockchain'
-                                : 'Purchased a verified authentic product',
-                            timestamp: '2:30 PM',
-                            date: 'Yesterday'
-                        },
-                        {
-                            id: 3,
-                            type: 'account',
-                            icon: 'bi-person-check',
-                            title: 'Account Login',
-                            description: 'Successfully logged in to your account',
-                            timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
-                            date: 'Today'
+                // If blockchain is initialized, try to get real data
+                if (blockchainInitialized && userAddress) {
+                    try {
+                        // Get owned products
+                        const ownedProducts = await blockchainService.getProductsOwned(userAddress);
+                        
+                        // Get manufactured products if user is manufacturer
+                        let manufacturedProducts = [];
+                        if (userRole === 'manufacturer') {
+                            manufacturedProducts = await blockchainService.getProductsManufactured(userAddress);
                         }
-                    ];
-
-                    // Add role-specific activities
-                    if (userRole === 'manufacturer') {
-                        mockActivities.splice(1, 0, {
-                            id: 4,
-                            type: 'registration',
-                            icon: 'bi-card-checklist',
-                            title: 'Seller Registered',
-                            description: 'Registered new authorized seller',
-                            timestamp: '10:15 AM',
-                            date: 'Today'
-                        });
+                        
+                        // Update stats with real data
+                        setStats(prevStats => ({
+                            ...prevStats,
+                            productsOwned: ownedProducts.length,
+                            productsManufactured: manufacturedProducts.length,
+                            lastActivity: new Date().toLocaleDateString()
+                        }));
+                    } catch (error) {
+                        console.error('Error fetching blockchain data:', error);
+                        // Fall back to mock data if blockchain query fails
+                        setMockData();
                     }
+                } else {
+                    // Use mock data if blockchain is not initialized
+                    setMockData();
+                }
 
-                    if (userRole === 'seller') {
-                        mockActivities.splice(1, 0, {
-                            id: 5,
-                            type: 'sale',
-                            icon: 'bi-bag-check',
-                            title: 'Product Sold',
-                            description: 'Completed sale and transferred ownership',
-                            timestamp: '11:45 AM',
-                            date: 'Today'
-                        });
-                    }
-
-                    setRecentActivity(mockActivities);
-                    setLoading(false);
-                }, 1200);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
                 setToast('Failed to load dashboard data');
@@ -100,8 +82,84 @@ function Dashboard() {
             }
         };
 
-        fetchDashboardData();
-    }, [userRole, setToast]);
+        const setMockData = () => {
+            // Simulate API call with timeout
+            setTimeout(() => {
+                // Generate random stats based on user role
+                setStats({
+                    productsVerified: Math.floor(Math.random() * 25) + 5,
+                    productsOwned: userRole === 'consumer' ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 20) + 5,
+                    pendingTransfers: Math.floor(Math.random() * 3),
+                    lastActivity: new Date().toLocaleDateString()
+                });
+
+                // Generate mock activity data
+                const mockActivities = [
+                    {
+                        id: 1,
+                        type: 'verification',
+                        icon: 'bi-shield-check',
+                        title: 'Product Verified',
+                        description: `You verified product ID: PRD-${Math.floor(1000 + Math.random() * 9000)}`,
+                        timestamp: new Date().toLocaleTimeString(),
+                        date: 'Today'
+                    },
+                    {
+                        id: 2,
+                        type: userRole === 'manufacturer' ? 'added' : 'purchase',
+                        icon: userRole === 'manufacturer' ? 'bi-box-seam' : 'bi-cart-check',
+                        title: userRole === 'manufacturer' ? 'Product Added' : 'Product Purchased',
+                        description: userRole === 'manufacturer' 
+                            ? 'Added new product to the blockchain'
+                            : 'Purchased a verified authentic product',
+                        timestamp: '2:30 PM',
+                        date: 'Yesterday'
+                    },
+                    {
+                        id: 3,
+                        type: 'account',
+                        icon: 'bi-person-check',
+                        title: 'Account Login',
+                        description: 'Successfully logged in to your account',
+                        timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
+                        date: 'Today'
+                    }
+                ];
+
+                // Add role-specific activities
+                if (userRole === 'manufacturer') {
+                    mockActivities.splice(1, 0, {
+                        id: 4,
+                        type: 'registration',
+                        icon: 'bi-card-checklist',
+                        title: 'Seller Registered',
+                        description: 'Registered new authorized seller',
+                        timestamp: '10:15 AM',
+                        date: 'Today'
+                    });
+                }
+
+                if (userRole === 'seller') {
+                    mockActivities.splice(1, 0, {
+                        id: 5,
+                        type: 'sale',
+                        icon: 'bi-bag-check',
+                        title: 'Product Sold',
+                        description: 'Completed sale and transferred ownership',
+                        timestamp: '11:45 AM',
+                        date: 'Today'
+                    });
+                }
+
+                setRecentActivity(mockActivities);
+                setLoading(false);
+            }, 1200);
+        };
+
+        if (userRole) {
+            fetchDashboardData();
+        }
+    }, [userRole, setToast, blockchainInitialized, userAddress]);
 
     // Quick action cards based on user role
     const getQuickActions = () => {
@@ -213,26 +271,6 @@ function Dashboard() {
         }
     };
 
-    // Get icon for activity type
-    const getActivityIconClass = (type) => {
-        switch (type) {
-            case 'verification':
-                return 'bi-shield-check';
-            case 'added':
-                return 'bi-box-seam';
-            case 'purchase':
-                return 'bi-cart-check';
-            case 'account':
-                return 'bi-person-check';
-            case 'sale':
-                return 'bi-bag-check';
-            case 'registration':
-                return 'bi-card-checklist';
-            default:
-                return 'bi-clock-history';
-        }
-    };
-
     return (
         <div className="dashboard-container">
             <Container>
@@ -246,7 +284,19 @@ function Dashboard() {
                                 ? 'Track your inventory and handle sales'
                                 : 'Verify and track authentic products'}
                     </p>
+                    {userAddress && (
+                        <div className="wallet-address mt-2">
+                            <small>Connected Account: {userAddress.substring(0, 6)}...{userAddress.substring(38)}</small>
+                        </div>
+                    )}
                 </div>
+
+                {/* Add Blockchain Status */}
+                <Row className="mb-4">
+                    <Col>
+                        <BlockchainStatus />
+                    </Col>
+                </Row>
 
                 <div className="dashboard-stats">
                     <Row>
@@ -303,7 +353,7 @@ function Dashboard() {
                 <div className="dashboard-section">
                     <h2>Quick Actions</h2>
                     <div className="actions-grid">
-                        {getQuickActions().map((action, index) => (
+                    {getQuickActions().map((action, index) => (
                             <Link key={index} to={action.link} className="action-card" style={{ backgroundColor: action.color }}>
                                 <div className="action-icon">
                                     <i className={action.icon}></i>

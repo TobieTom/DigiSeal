@@ -10,10 +10,12 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@metamask/detect-provider": "^2.0.0",
         "@portis/web3": "^3.0.3",
         "@truffle/contract": "^4.6.31",
         "bootstrap": "^5.3.3",
         "bootstrap-icons": "^1.11.3",
+        "buffer": "^6.0.3",
         "formik": "^2.4.6",
         "ipfs-http-client": "^60.0.1",
         "keccak256": "^1.0.6",
@@ -25,7 +27,7 @@
         "react-router-dom": "^6.30.0",
         "react-transition-group": "^4.4.5",
         "recoil": "^0.7.7",
-        "web3": "^4.16.0",
+        "web3": "^1.8.2",
         "yup": "^1.6.1"
     },
     "devDependencies": {

@@ -8,17 +8,18 @@ module.exports = {
             port: 8545,
             network_id: "*",
         },
-        amoy: {
+        holesky: {
             provider: () => new HDWalletProvider({
                 mnemonic: { phrase: process.env.MNEMONIC },
-                providerOrUrl: `https://polygon-amoy.g.alchemy.com/v2/2eYqb_oflsOCmCTbBvIV8rytueOVVmGg`
+                providerOrUrl: `https://eth-holesky.g.alchemy.com/v2/f12PoTH-Bfs1PrGeNy0EGBmsDRHSunvw`
             }),
-            network_id: 80002, // Amoy's network ID
+            network_id: 17000,
             confirmations: 2,
             timeoutBlocks: 200,
             skipDryRun: true,
-            gas: 5000000,
-            gasPrice: 5000000000  // 5 gwei
+            gas: 3000000,           // Further reduced
+            gasPrice: 900000000,    // 0.9 gwei
+            networkCheckTimeout: 120000
         }
     },
     compilers: {

@@ -32,6 +32,7 @@ function ProductInfo() {
                 setProductInfo(productDetails)
 
                 // Fetch extended details from IPFS if available
+                // Fetch extended details from IPFS if available
                 if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
                     try {
                         const ipfsData = await ipfsService.getJSON(productDetails.productDetails)
