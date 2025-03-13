@@ -1,3 +1,4 @@
+// backend/src/index.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use('/api/products', require('./routes/product'));
 app.use('/api/users', require('./routes/users'));
+
 
 // Start server
 app.listen(PORT, () => {

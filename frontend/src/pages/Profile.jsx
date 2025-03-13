@@ -5,7 +5,8 @@ import { userRoleState, toastState } from '../store/atoms'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Form as BootstrapForm, Row, Col, Button, Card } from 'react-bootstrap'
-// Using standard Bootstrap icons from react-bootstrap
+import { useAuth } from '../context/AuthContext'
+import blockchainService from '../services/BlockchainService'
 import '../styles/profile.css'
 
 function Profile() {
@@ -19,22 +20,32 @@ function Profile() {
         walletAddress: '',
         role: userRole
     })
+    const { logout, linkWallet } = useAuth()
 
     // Fetch user data
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // This is a placeholder for actual blockchain data fetching
-                // For now, we're using mock data
-                setTimeout(() => {
+                // Get user data from the backend
+                const user = await AuthService.getCurrentUser()
+                
+                if (user) {
                     setUserData({
-                        name: 'John Doe',
-                        email: 'john.doe@example.com',
-                        walletAddress: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                        name: user.name || '',
+                        email: user.email || '',
+                        walletAddress: user.walletAddress || '',
+                        role: user.role || userRole
+                    })
+                } else {
+                    // Fallback to local storage if API fails
+                    setUserData({
+                        name: localStorage.getItem('userName') || 'User',
+                        email: '',
+                        walletAddress: localStorage.getItem('userAddress') || '',
                         role: userRole
                     })
-                    setLoading(false)
-                }, 1000)
+                }
+                setLoading(false)
             } catch (error) {
                 console.error('Error fetching user data:', error)
                 setToast('Failed to load profile information')
@@ -57,6 +68,7 @@ function Profile() {
             setLoading(true)
 
             // This is a placeholder for actual profile update logic
+            // In a real app, you would call an API endpoint to update the user profile
             console.log('Updating profile:', values)
 
             // Simulate successful update
@@ -66,6 +78,9 @@ function Profile() {
                     name: values.name,
                     email: values.email
                 })
+
+                // Update local storage
+                localStorage.setItem('userName', values.name)
 
                 setToast('Profile updated successfully')
                 setLoading(false)
@@ -77,6 +92,46 @@ function Profile() {
             setToast('Failed to update profile')
             setLoading(false)
             setSubmitting(false)
+        }
+    }
+
+    // Handle wallet linking
+    const handleLinkWallet = async () => {
+        try {
+            setLoading(true)
+            
+            // Initialize blockchain service
+            await blockchainService.init()
+            
+            // Get current wallet address
+            const account = await blockchainService.getCurrentAccount()
+            
+            if (!account) {
+                setToast('No wallet detected. Please make sure your wallet is connected.')
+                setLoading(false)
+                return
+            }
+            
+            // Link wallet to user account
+            const result = await linkWallet(account)
+            
+            if (result.success) {
+                setToast('Wallet linked successfully!')
+                setUserData({
+                    ...userData,
+                    walletAddress: account
+                })
+                
+                // Update local storage
+                localStorage.setItem('userAddress', account)
+            } else {
+                setToast('Failed to link wallet: ' + (result.error || 'Unknown error'))
+            }
+            setLoading(false)
+        } catch (error) {
+            console.error('Error linking wallet:', error)
+            setToast('Error linking wallet: ' + (error.message || 'Unknown error'))
+            setLoading(false)
         }
     }
 
@@ -240,10 +295,24 @@ function Profile() {
                                     </div>
                                     <div className="info-item">
                                         <label>Wallet Address</label>
-                                        <p className="wallet-address">
-                                            <i className="bi bi-wallet2"></i>
-                                            {userData.walletAddress}
-                                        </p>
+                                        {userData.walletAddress ? (
+                                            <p className="wallet-address">
+                                                <i className="bi bi-wallet2"></i>
+                                                {userData.walletAddress}
+                                            </p>
+                                        ) : (
+                                            <div className="wallet-action">
+                                                <p className="text-muted">No wallet linked to your account</p>
+                                                <Button
+                                                    variant="outline-primary"
+                                                    size="sm"
+                                                    onClick={handleLinkWallet}
+                                                    className="link-wallet-btn"
+                                                >
+                                                    <i className="bi bi-link-45deg me-1"></i> Link Wallet
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="profile-actions">
                                         <Button
