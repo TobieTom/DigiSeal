@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/products', require('./routes/products'));
+app.use('/api/products', require('./routes/product'));
 app.use('/api/users', require('./routes/users'));
 
 // Start server

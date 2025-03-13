@@ -1,37 +1,63 @@
 import Web3 from 'web3';
-import TruffleContract from '@truffle/contract';
-import ProductVerificationArtifact from '../../blockchain/build/contracts/ProductVerification.json'; // Adjust path as needed
 
 class BlockchainService {
     constructor() {
         this.web3 = null;
         this.accounts = [];
         this.networkId = null;
-        this.productVerification = null;
+        this.productVerificationContract = null;
         this.initialized = false;
+        this.contractAddress = null; // Will be set from the artifact
+    }
+
+    async loadContractArtifact() {
+        try {
+            const response = await fetch('/contracts/ProductVerification.json');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch contract artifact: ${response.status} ${response.statusText}`);
+            }
+            const artifact = await response.json();
+            
+            // Get the contract ABI and deployment address from the artifact
+            this.contractAbi = artifact.abi;
+            
+            // Get the deployment address from networks object
+            // We'll use the first network found in the artifact
+            const networkIds = Object.keys(artifact.networks);
+            if (networkIds.length === 0) {
+                throw new Error("No deployed network found in the contract artifact");
+            }
+            this.contractAddress = artifact.networks[networkIds[0]].address;
+            
+            return {
+                abi: this.contractAbi,
+                address: this.contractAddress
+            };
+        } catch (error) {
+            console.error("Error loading contract artifact:", error);
+            throw error;
+        }
     }
 
     async init() {
-        if (this.initialized) return;
+        if (this.initialized) return true;
 
         try {
-            // Modern dapp browsers
+            // Load contract artifact first
+            const contractInfo = await this.loadContractArtifact();
+
+            // Initialize Web3
             if (window.ethereum) {
                 this.web3 = new Web3(window.ethereum);
                 try {
-                    // Request account access
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
                 } catch (error) {
                     console.error("User denied account access");
                     throw new Error("User denied account access");
                 }
-            }
-            // Legacy dapp browsers
-            else if (window.web3) {
+            } else if (window.web3) {
                 this.web3 = new Web3(window.web3.currentProvider);
-            }
-            // If no injected web3 instance is detected, fall back to Ganache
-            else {
+            } else {
                 const provider = new Web3.providers.HttpProvider('http://localhost:8545');
                 this.web3 = new Web3(provider);
             }
@@ -39,16 +65,11 @@ class BlockchainService {
             this.accounts = await this.web3.eth.getAccounts();
             this.networkId = await this.web3.eth.net.getId();
 
-            // Set up contract
-            const ProductVerification = TruffleContract(ProductVerificationArtifact);
-            ProductVerification.setProvider(this.web3.currentProvider);
-
-            try {
-                this.productVerification = await ProductVerification.deployed();
-            } catch (error) {
-                console.error("Contract not deployed on this network:", error);
-                throw new Error("Contract not deployed on this network");
-            }
+            // Create contract instance directly with web3
+            this.productVerificationContract = new this.web3.eth.Contract(
+                contractInfo.abi,
+                contractInfo.address
+            );
 
             this.initialized = true;
             return true;
@@ -60,6 +81,7 @@ class BlockchainService {
 
     async getCurrentAccount() {
         if (!this.initialized) await this.init();
+        this.accounts = await this.web3.eth.getAccounts();
         return this.accounts[0];
     }
 
@@ -67,14 +89,13 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = this.accounts[0];
-            return await this.productVerification.registerProduct(
+            const account = await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.registerProduct(
                 productId,
                 manufacturerName,
                 productDetails,
-                manufacturingLocation,
-                { from: account }
-            );
+                manufacturingLocation
+            ).send({ from: account });
         } catch (error) {
             console.error("Error registering product:", error);
             throw error;
@@ -85,16 +106,18 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = this.accounts[0];
-            const result = await this.productVerification.verifyProduct(
+            const account = await this.getCurrentAccount();
+            const result = await this.productVerificationContract.methods.verifyProduct(
                 productId,
-                location || 'Unknown',
-                { from: account }
-            );
+                location || 'Unknown'
+            ).send({ from: account });
 
-            // Parse result from transaction logs
-            const verifiedEvent = result.logs.find(log => log.event === 'ProductVerified');
-            return verifiedEvent ? verifiedEvent.args.authentic : false;
+            // Parse result to get authentication status
+            const events = result.events;
+            if (events && events.ProductVerified) {
+                return events.ProductVerified.returnValues.authentic;
+            }
+            return false;
         } catch (error) {
             console.error("Error verifying product:", error);
             throw error;
@@ -105,18 +128,18 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const details = await this.productVerification.getProductDetails(productId);
+            const details = await this.productVerificationContract.methods.getProductDetails(productId).call();
 
             // Format the response
             return {
                 productId: details[0],
                 manufacturer: details[1],
                 currentOwner: details[2],
-                manufactureDate: new Date(details[3].toNumber() * 1000),
+                manufactureDate: new Date(parseInt(details[3]) * 1000),
                 manufacturerName: details[4],
                 productDetails: details[5],
                 manufacturingLocation: details[6],
-                status: ['Created', 'InTransit', 'WithSeller', 'Sold', 'Reported'][details[7].toNumber()],
+                status: ['Created', 'InTransit', 'WithSeller', 'Sold', 'Reported'][parseInt(details[7])],
                 isAuthentic: details[8]
             };
         } catch (error) {
@@ -129,13 +152,12 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = this.accounts[0];
-            return await this.productVerification.transferOwnership(
+            const account = await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.transferOwnership(
                 productId,
                 newOwner,
-                transferConditions || '',
-                { from: account }
-            );
+                transferConditions || ''
+            ).send({ from: account });
         } catch (error) {
             console.error("Error transferring ownership:", error);
             throw error;
@@ -146,13 +168,13 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const history = await this.productVerification.getTransferHistory(productId);
+            const history = await this.productVerificationContract.methods.getTransferHistory(productId).call();
 
             // Format the response
             return history.map(transfer => ({
                 from: transfer.from,
                 to: transfer.to,
-                timestamp: new Date(transfer.timestamp.toNumber() * 1000),
+                timestamp: new Date(parseInt(transfer.timestamp) * 1000),
                 transferConditions: transfer.transferConditions
             }));
         } catch (error) {
@@ -165,12 +187,12 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const history = await this.productVerification.getVerificationHistory(productId);
+            const history = await this.productVerificationContract.methods.getVerificationHistory(productId).call();
 
             // Format the response
             return history.map(verification => ({
                 verifier: verification.verifier,
-                timestamp: new Date(verification.timestamp.toNumber() * 1000),
+                timestamp: new Date(parseInt(verification.timestamp) * 1000),
                 location: verification.location,
                 result: verification.result
             }));
@@ -184,14 +206,13 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = this.accounts[0];
-            return await this.productVerification.reportCounterfeit(
+            const account = await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.reportCounterfeit(
                 productId,
                 evidenceHash || '',
                 description || '',
-                location || '',
-                { from: account }
-            );
+                location || ''
+            ).send({ from: account });
         } catch (error) {
             console.error("Error reporting counterfeit:", error);
             throw error;
@@ -202,11 +223,10 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = this.accounts[0];
-            return await this.productVerification.registerSeller(
-                sellerAddress,
-                { from: account }
-            );
+            const account = await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.registerSeller(
+                sellerAddress
+            ).send({ from: account });
         } catch (error) {
             console.error("Error registering seller:", error);
             throw error;
@@ -217,16 +237,16 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || this.accounts[0];
+            const account = address || await this.getCurrentAccount();
 
             // Check roles
             const MANUFACTURER_ROLE = this.web3.utils.soliditySha3("MANUFACTURER_ROLE");
             const SELLER_ROLE = this.web3.utils.soliditySha3("SELLER_ROLE");
             const ADMIN_ROLE = this.web3.utils.soliditySha3("ADMIN_ROLE");
 
-            const isManufacturer = await this.productVerification.hasSpecificRole(MANUFACTURER_ROLE, account);
-            const isSeller = await this.productVerification.hasSpecificRole(SELLER_ROLE, account);
-            const isAdmin = await this.productVerification.hasSpecificRole(ADMIN_ROLE, account);
+            const isManufacturer = await this.productVerificationContract.methods.hasSpecificRole(MANUFACTURER_ROLE, account).call();
+            const isSeller = await this.productVerificationContract.methods.hasSpecificRole(SELLER_ROLE, account).call();
+            const isAdmin = await this.productVerificationContract.methods.hasSpecificRole(ADMIN_ROLE, account).call();
 
             return {
                 isManufacturer,
@@ -244,9 +264,8 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || this.accounts[0];
-            const productIds = await this.productVerification.getProductsOwned(account);
-            return productIds;
+            const account = address || await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.getProductsOwned(account).call();
         } catch (error) {
             console.error("Error getting owned products:", error);
             throw error;
@@ -257,9 +276,8 @@ class BlockchainService {
         if (!this.initialized) await this.init();
 
         try {
-            const account = address || this.accounts[0];
-            const productIds = await this.productVerification.getProductsManufactured(account);
-            return productIds;
+            const account = address || await this.getCurrentAccount();
+            return await this.productVerificationContract.methods.getProductsManufactured(account).call();
         } catch (error) {
             console.error("Error getting manufactured products:", error);
             throw error;

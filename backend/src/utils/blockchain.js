@@ -1,6 +1,10 @@
+const path = require('path');
 const Web3 = require('web3');
 const TruffleContract = require('@truffle/contract');
-const ProductVerificationJSON = require('../../blockchain/build/contracts/ProductVerification.json');
+
+// Use a reliable path
+const contractPath = path.join(__dirname, '../../contracts/ProductVerification.json');
+const ProductVerificationJSON = require(contractPath);
 
 // Connect to blockchain
 const connectBlockchain = () => {
