@@ -1,4 +1,4 @@
-// src/components/layout/Header.jsx - Enhanced version
+// src/components/layout/Header.jsx - Updated version
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
