@@ -1,33 +1,34 @@
 // src/pages/Profile.jsx
-import { useState, useEffect } from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userRoleState, toastState } from '../store/atoms'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
-import * as Yup from 'yup'
-import { Form as BootstrapForm, Row, Col, Button, Card } from 'react-bootstrap'
-import { useAuth } from '../context/AuthContext'
-import blockchainService from '../services/BlockchainService'
-import '../styles/profile.css'
+import { useState, useEffect } from 'react';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { userRoleState, toastState } from '../store/atoms';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { Form as BootstrapForm, Row, Col, Button, Card, Alert } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
+import blockchainService from '../services/BlockchainService';
+import AuthService from '../services/AuthService'; // Added the import
+import '../styles/profile.css';
 
 function Profile() {
-    const [userRole, setUserRole] = useRecoilState(userRoleState)
-    const setToast = useSetRecoilState(toastState)
-    const [loading, setLoading] = useState(true)
-    const [isEditing, setIsEditing] = useState(false)
+    const [userRole, setUserRole] = useRecoilState(userRoleState);
+    const setToast = useSetRecoilState(toastState);
+    const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
     const [userData, setUserData] = useState({
         name: '',
         email: '',
         walletAddress: '',
         role: userRole
-    })
-    const { logout, linkWallet } = useAuth()
+    });
+    const { logout, linkWallet } = useAuth();
 
     // Fetch user data
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Get user data from the backend
-                const user = await AuthService.getCurrentUser()
+                // Get user data from the AuthService
+                const user = await AuthService.getCurrentUser();
                 
                 if (user) {
                     setUserData({
@@ -35,41 +36,48 @@ function Profile() {
                         email: user.email || '',
                         walletAddress: user.walletAddress || '',
                         role: user.role || userRole
-                    })
+                    });
                 } else {
                     // Fallback to local storage if API fails
                     setUserData({
                         name: localStorage.getItem('userName') || 'User',
-                        email: '',
+                        email: localStorage.getItem('user_email') || '',
                         walletAddress: localStorage.getItem('userAddress') || '',
                         role: userRole
-                    })
+                    });
                 }
-                setLoading(false)
+                setLoading(false);
             } catch (error) {
-                console.error('Error fetching user data:', error)
-                setToast('Failed to load profile information')
-                setLoading(false)
+                console.error('Error fetching user data:', error);
+                // Fallback to local storage on error
+                setUserData({
+                    name: localStorage.getItem('userName') || 'User',
+                    email: localStorage.getItem('user_email') || '',
+                    walletAddress: localStorage.getItem('userAddress') || '',
+                    role: userRole
+                });
+                setToast('Failed to load profile information');
+                setLoading(false);
             }
-        }
+        };
 
-        fetchUserData()
-    }, [userRole, setToast])
+        fetchUserData();
+    }, [userRole, setToast]);
 
     // Validation schema for profile updates
     const validationSchema = Yup.object({
         name: Yup.string().required('Name is required'),
         email: Yup.string().email('Invalid email').required('Email is required')
-    })
+    });
 
     // Handle profile update
     const handleUpdateProfile = async (values, { setSubmitting }) => {
         try {
-            setLoading(true)
+            setLoading(true);
 
             // This is a placeholder for actual profile update logic
             // In a real app, you would call an API endpoint to update the user profile
-            console.log('Updating profile:', values)
+            console.log('Updating profile:', values);
 
             // Simulate successful update
             setTimeout(() => {
@@ -77,119 +85,120 @@ function Profile() {
                     ...userData,
                     name: values.name,
                     email: values.email
-                })
+                });
 
                 // Update local storage
-                localStorage.setItem('userName', values.name)
+                localStorage.setItem('userName', values.name);
+                localStorage.setItem('user_email', values.email);
 
-                setToast('Profile updated successfully')
-                setLoading(false)
-                setSubmitting(false)
-                setIsEditing(false)
-            }, 1500)
+                setToast('Profile updated successfully');
+                setLoading(false);
+                setSubmitting(false);
+                setIsEditing(false);
+            }, 1500);
         } catch (error) {
-            console.error('Error updating profile:', error)
-            setToast('Failed to update profile')
-            setLoading(false)
-            setSubmitting(false)
+            console.error('Error updating profile:', error);
+            setToast('Failed to update profile');
+            setLoading(false);
+            setSubmitting(false);
         }
-    }
+    };
 
     // Handle wallet linking
     const handleLinkWallet = async () => {
         try {
-            setLoading(true)
+            setLoading(true);
             
             // Initialize blockchain service
-            await blockchainService.init()
+            await blockchainService.init();
             
             // Get current wallet address
-            const account = await blockchainService.getCurrentAccount()
+            const account = await blockchainService.getCurrentAccount();
             
             if (!account) {
-                setToast('No wallet detected. Please make sure your wallet is connected.')
-                setLoading(false)
-                return
+                setToast('No wallet detected. Please make sure your wallet is connected.');
+                setLoading(false);
+                return;
             }
             
             // Link wallet to user account
-            const result = await linkWallet(account)
+            const result = await linkWallet(account);
             
             if (result.success) {
-                setToast('Wallet linked successfully!')
+                setToast('Wallet linked successfully!');
                 setUserData({
                     ...userData,
                     walletAddress: account
-                })
+                });
                 
                 // Update local storage
-                localStorage.setItem('userAddress', account)
+                localStorage.setItem('userAddress', account);
             } else {
-                setToast('Failed to link wallet: ' + (result.error || 'Unknown error'))
+                setToast('Failed to link wallet: ' + (result.error || 'Unknown error'));
             }
-            setLoading(false)
+            setLoading(false);
         } catch (error) {
-            console.error('Error linking wallet:', error)
-            setToast('Error linking wallet: ' + (error.message || 'Unknown error'))
-            setLoading(false)
+            console.error('Error linking wallet:', error);
+            setToast('Error linking wallet: ' + (error.message || 'Unknown error'));
+            setLoading(false);
         }
-    }
+    };
 
     // Handle role change request
     const handleRoleChange = async (newRole) => {
         try {
-            setLoading(true)
+            setLoading(true);
 
             // This is a placeholder for actual role change logic
-            console.log('Changing role to:', newRole)
+            console.log('Changing role to:', newRole);
 
             // Simulate successful role change
             setTimeout(() => {
-                setUserRole(newRole)
+                setUserRole(newRole);
                 setUserData({
                     ...userData,
                     role: newRole
-                })
+                });
 
                 // Save to localStorage
-                localStorage.setItem('userRole', newRole)
+                localStorage.setItem('userRole', newRole);
 
-                setToast(`Role changed to ${newRole} successfully`)
-                setLoading(false)
-            }, 1500)
+                setToast(`Role changed to ${newRole} successfully`);
+                setLoading(false);
+            }, 1500);
         } catch (error) {
-            console.error('Error changing role:', error)
-            setToast('Failed to change role')
-            setLoading(false)
+            console.error('Error changing role:', error);
+            setToast('Failed to change role');
+            setLoading(false);
         }
-    }
+    };
 
     // Get role icon class
     const getRoleIconClass = (role) => {
         switch (role) {
             case 'manufacturer':
-                return 'bi bi-building'
+                return 'bi bi-building';
             case 'seller':
-                return 'bi bi-shop'
+                return 'bi bi-shop';
             default:
-                return 'bi bi-person'
+                return 'bi bi-person';
         }
-    }
+    };
 
     // Get role display name
     const getRoleName = (role) => {
         switch (role) {
             case 'manufacturer':
-                return 'Manufacturer'
+                return 'Manufacturer';
             case 'seller':
-                return 'Seller'
+                return 'Seller';
             default:
-                return 'Consumer'
+                return 'Consumer';
         }
-    }
+    };
 
     if (loading) {
-        return <div className="loading-container">Loading profile data...</div>
+        return <div className="loading-container">Loading profile data...</div>;
     }
 
     return (
@@ -380,7 +389,7 @@ function Profile() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default Profile
+export default Profile;

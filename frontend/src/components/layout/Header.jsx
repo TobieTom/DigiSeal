@@ -1,102 +1,121 @@
 // src/components/layout/Header.jsx
-import { useState, useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { loginState, userRoleState, toastState } from '../../store/atoms'
-import { useAuth } from '../../context/AuthContext'
-import Loader from '../common/Loader'
-import NetworkIndicator from '../common/NetworkIndicator'
-import '../../styles/header.css'
-import '../../styles/hamburger.css'
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { loginState, userRoleState, toastState } from '../../store/atoms';
+import { useAuth } from '../../context/AuthContext';
+import Loader from '../common/Loader';
+import NetworkIndicator from '../common/NetworkIndicator';
+import '../../styles/header.css';
 
 // Import logo
-import logo from '../../assets/images/logo-svg.svg'
+import logo from '../../assets/images/logo-svg.svg';
 
 function Header() {
-    const [menuOpen, setMenuOpen] = useState(false)
-    const setToast = useSetRecoilState(toastState)
-    const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState)
-    const [userRole, setUserRole] = useRecoilState(userRoleState)
-    const [isLoading, setIsLoading] = useState(true)
-    const { logout, loading: authLoading } = useAuth()
-    const navigate = useNavigate()
-    const location = useLocation()
+    const [menuOpen, setMenuOpen] = useState(false);
+    const setToast = useSetRecoilState(toastState);
+    const [isLoggedIn, setIsLoggedIn] = useRecoilState(loginState);
+    const [userRole, setUserRole] = useRecoilState(userRoleState);
+    const [isLoading, setIsLoading] = useState(true);
+    const { logout, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     // Function to toggle the hamburger menu
     const toggleMenu = () => {
-        const navItems = document.querySelector('.nav-items')
-        if (navItems) {
-            if (!menuOpen) {
-                navItems.style.display = 'flex'
-                navItems.classList.add('open')
-            } else {
-                navItems.style.display = 'none'
-                navItems.classList.remove('open')
-            }
-        }
-
-        const hamburger = document.querySelector('.hamburger')
-        if (hamburger) {
-            hamburger.classList.toggle('is-active')
-        }
-
-        setMenuOpen(!menuOpen)
-    }
+        setMenuOpen(!menuOpen);
+    };
 
     // Close menu when changing routes
     useEffect(() => {
         if (menuOpen) {
-            toggleMenu()
+            setMenuOpen(false);
         }
-    }, [location.pathname])
+    }, [location.pathname]);
 
     // Handle logout
     const handleLogout = async () => {
         try {
-            const result = await logout()
+            const result = await logout();
             
             if (result.success) {
-                setIsLoggedIn(false)
-                setUserRole('consumer')
-                setToast('Logged out successfully')
-                navigate('/')
+                setIsLoggedIn(false);
+                setUserRole('consumer');
+                setToast('Logged out successfully');
+                navigate('/');
             } else {
-                setToast('Failed to log out: ' + (result.error || 'Unknown error'))
+                setToast('Failed to log out: ' + (result.error || 'Unknown error'));
             }
         } catch (error) {
-            console.error('Logout error:', error)
-            setToast('Failed to log out')
+            console.error('Logout error:', error);
+            setToast('Failed to log out');
         }
-    }
+    };
 
     // Handle login
     const handleLogin = async () => {
-        navigate('/login')
-    }
+        navigate('/login');
+    };
 
     // Check if user is logged in on component mount
     useEffect(() => {
         const checkLoginStatus = () => {
-            const savedLoginStatus = localStorage.getItem('isLoggedIn') === 'true'
-            const savedUserRole = localStorage.getItem('userRole') || 'consumer'
+            const savedLoginStatus = localStorage.getItem('isLoggedIn') === 'true';
+            const savedUserRole = localStorage.getItem('userRole') || 'consumer';
 
-            setIsLoggedIn(savedLoginStatus)
-            setUserRole(savedUserRole)
-            setIsLoading(false)
+            setIsLoggedIn(savedLoginStatus);
+            setUserRole(savedUserRole);
+            setIsLoading(false);
+        };
+
+        checkLoginStatus();
+    }, []);
+
+    // Manufacturer Links
+    const manufacturerLinks = [
+        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
+        { path: '/add', icon: 'bi-plus-circle', label: 'Add Product' },
+        { path: '/products', icon: 'bi-box-seam', label: 'My Products' },
+        { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
+        { path: '/registerSeller', icon: 'bi-person-plus', label: 'Register Seller' },
+        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
+    ];
+
+    // Seller Links
+    const sellerLinks = [
+        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
+        { path: '/sell', icon: 'bi-cart-check', label: 'Sell Product' },
+        { path: '/products', icon: 'bi-box-seam', label: 'Inventory' },
+        { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
+        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
+    ];
+
+    // Consumer Links
+    const consumerLinks = [
+        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
+        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
+        { path: '/products', icon: 'bi-collection', label: 'My Products' },
+    ];
+
+    // Get the appropriate links based on user role
+    const getLinks = () => {
+        if (userRole === 'manufacturer') {
+            return manufacturerLinks;
+        } else if (userRole === 'seller') {
+            return sellerLinks;
+        } else {
+            return consumerLinks;
         }
-
-        checkLoginStatus()
-    }, [])
+    };
 
     return (
         <header className="main-header">
-            <nav className="navbar">
+            <div className="navbar">
                 <div className="navbar-brand">
-                    <div className="logo">
-                        <Link to={isLoggedIn ? "/dashboard" : "/"}>
-                            <img src={logo} className="logo-img" alt="BlockVerify" />
-                        </Link>
-                    </div>
+                    <Link to={isLoggedIn ? "/dashboard" : "/"} className="logo">
+                        <img src={logo} alt="DigiSeal" className="logo-img" />
+                        <span className="logo-text">DigiSeal</span>
+                    </Link>
 
                     <div className="verification-container">
                         <Link to="/scan" className="scan-button-header">
@@ -107,116 +126,80 @@ function Header() {
                     </div>
                 </div>
 
-                <div className="nav-items">
-                    {/* Always visible links */}
-                    <div className="nav-link">
-                        <Link to={isLoggedIn ? "/dashboard" : "/"} className={location.pathname === '/' || location.pathname === '/dashboard' ? 'active' : ''}>
-                            <span>
-                                <i className="bi bi-house"></i>
-                                <h5>{isLoggedIn ? 'Dashboard' : 'Home'}</h5>
-                            </span>
-                        </Link>
-                    </div>
+                <button 
+                    className={`menu-toggle ${menuOpen ? 'active' : ''}`} 
+                    onClick={toggleMenu}
+                    aria-label="Toggle navigation menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
 
-                    {isLoggedIn && (
-                        <>
-                            {/* All user types can verify products */}
-                            <div className="nav-link">
-                                <Link to="/buy" className={location.pathname === '/buy' ? 'active' : ''}>
-                                    <span>
-                                        <i className="bi bi-shield-check"></i>
-                                        <h5>Verify Product</h5>
-                                    </span>
-                                </Link>
-                            </div>
-
-                            {/* Manufacturer/Seller specific links */}
-                            {(userRole === 'manufacturer' || userRole === 'seller') && (
-                                <>
-                                    <div className="nav-link">
-                                        <Link to="/products" className={location.pathname === '/products' ? 'active' : ''}>
-                                            <span>
-                                                <i className="bi bi-box-seam"></i>
-                                                <h5>My Products</h5>
-                                            </span>
+                <nav className={`main-nav ${menuOpen ? 'active' : ''}`}>
+                    <ul className="nav-list">
+                        {isLoggedIn ? (
+                            <>
+                                {getLinks().map((link, index) => (
+                                    <li key={index} className="nav-item">
+                                        <Link 
+                                            to={link.path} 
+                                            className={location.pathname === link.path ? 'active' : ''}
+                                        >
+                                            <i className={`bi ${link.icon}`}></i>
+                                            <span>{link.label}</span>
                                         </Link>
-                                    </div>
-
-                                    <div className="nav-link">
-                                        <Link to="/addowner" className={location.pathname === '/addowner' ? 'active' : ''}>
-                                            <span>
-                                                <i className="bi bi-arrow-left-right"></i>
-                                                <h5>Transfer</h5>
-                                            </span>
-                                        </Link>
-                                    </div>
-                                    
-                                    <div className="nav-link">
-                                        <Link to="/sell" className={location.pathname === '/sell' ? 'active' : ''}>
-                                            <span>
-                                                <i className="bi bi-cart-check"></i>
-                                                <h5>Sell</h5>
-                                            </span>
-                                        </Link>
-                                    </div>
-                                </>
-                            )}
-
-                            {/* Manufacturer specific links */}
-                            {userRole === 'manufacturer' && (
-                                <div className="nav-link">
-                                    <Link to="/add" className={location.pathname === '/add' ? 'active' : ''}>
-                                        <span>
-                                            <i className="bi bi-plus-circle"></i>
-                                            <h5>Add Product</h5>
-                                        </span>
-                                    </Link>
-                                </div>
-                            )}
-
-                            {/* Account/Profile link */}
-                            <div className="nav-link">
-                                <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}>
-                                    <span>
+                                    </li>
+                                ))}
+                                <li className="nav-item">
+                                    <Link 
+                                        to="/profile" 
+                                        className={location.pathname === '/profile' ? 'active' : ''}
+                                    >
                                         <i className="bi bi-person-circle"></i>
-                                        <h5>Profile</h5>
-                                    </span>
-                                </Link>
-                            </div>
-                        </>
-                    )}
-
-                    <div className="nav-link auth-link">
-                        {isLoading || authLoading ? (
-                            <Loader size="fix" />
-                        ) : isLoggedIn ? (
-                            <button onClick={handleLogout} className="auth-button">
-                                <span>
-                                    <i className="bi bi-box-arrow-right"></i>
-                                    <h5>Logout</h5>
-                                </span>
-                            </button>
+                                        <span>Profile</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item logout-item">
+                                    <button onClick={handleLogout} className="logout-button">
+                                        <i className="bi bi-box-arrow-right"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </>
                         ) : (
-                            <button onClick={handleLogin} className="auth-button">
-                                <span>
-                                    <i className="bi bi-box-arrow-in-right"></i>
-                                    <h5>Login</h5>
-                                </span>
-                            </button>
+                            <>
+                                <li className="nav-item">
+                                    <Link 
+                                        to="/" 
+                                        className={location.pathname === '/' ? 'active' : ''}
+                                    >
+                                        <i className="bi bi-house"></i>
+                                        <span>Home</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link 
+                                        to="/buy" 
+                                        className={location.pathname === '/buy' ? 'active' : ''}
+                                    >
+                                        <i className="bi bi-shield-check"></i>
+                                        <span>Verify Product</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <button onClick={handleLogin} className="login-button">
+                                        <i className="bi bi-box-arrow-in-right"></i>
+                                        <span>Login</span>
+                                    </button>
+                                </li>
+                            </>
                         )}
-                    </div>
-                </div>
-
-                <div className="hamburger-menu" onClick={toggleMenu}>
-                    <button className="hamburger hamburger--spin" type="button">
-                        <span className="hamburger-box">
-                            <span className="hamburger-inner"></span>
-                        </span>
-                    </button>
-                </div>
-            </nav>
+                    </ul>
+                </nav>
+            </div>
         </header>
-    )
+    );
 }
 
-export default Header
+export default Header;

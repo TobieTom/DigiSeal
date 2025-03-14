@@ -1,19 +1,54 @@
+/* src/styles/forms.css */
+
+/* Form section background */
 .form-section {
-    padding: 2rem 0;
-    background: linear-gradient(to bottom, rgba(246, 247, 249, 0.8), rgba(246, 247, 249, 0.9));
-}
-
-.form-container {
+    padding: 3rem 0;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 200px);
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    width: 100%;
-    background: transparent;
-    padding: 3rem 1rem;
-    max-width: 900px;
-    margin: 0 auto;
+    align-items: center;
 }
 
+/* Form container and card */
+.form-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.form-card:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.form-card-header {
+    background: linear-gradient(135deg, #1a1e3b, #2d3367);
+    color: white;
+    padding: 1.75rem 2rem;
+    border-bottom: none;
+}
+
+.form-card-header h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-card-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+}
+
+/* Legacy form frame styling for backward compatibility */
 .form-frame {
     position: relative;
     min-width: 320px;
@@ -21,15 +56,14 @@
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    background: linear-gradient(135deg, rgba(35, 43, 85, 0.75), rgba(35, 43, 85, 0.95));
+    background: linear-gradient(135deg, rgba(35, 43, 85, 0.95), rgba(35, 43, 85, 0.85));
     border-top: solid 1px rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
     transition: all 0.5s ease;
     overflow: hidden;
 }
 
-/* Add decorative accent to form frame */
 .form-frame::before {
     content: '';
     position: absolute;
@@ -37,11 +71,11 @@
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
+    background: linear-gradient(to right, #4361ee, #8b5cf6);
 }
 
 .form-header {
-    padding-top: 40px;
+    padding: 2rem 2rem 1rem;
     text-align: center;
     width: 100%;
 }
@@ -50,43 +84,48 @@
     color: white;
     font-size: 1.8rem;
     font-weight: 600;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
     position: relative;
     display: inline-block;
+}
+
+.form-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
 }
 
 .form-header h2::after {
     content: '';
     position: absolute;
-    bottom: -10px;
+    bottom: -8px;
     left: 0;
     width: 100%;
     height: 2px;
-    background: linear-gradient(to right, var(--secondary-color), #8b5cf6);
+    background: linear-gradient(to right, #4361ee, #8b5cf6);
 }
 
 .form-body {
-    padding: 2rem;
+    padding: 1.5rem 2rem 2rem;
     width: 100%;
 }
 
+/* Form controls */
 .product-form .form-control,
 .verify-form .form-control {
     background-color: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 30px;
+    border-radius: 8px;
     height: 50px;
     color: white;
-    padding-left: 20px;
-    margin-bottom: 20px;
+    padding: 0.75rem 1.25rem;
     transition: all 0.3s ease;
-    width: 100%;
+    font-size: 1rem;
 }
 
 .product-form .form-control:focus,
 .verify-form .form-control:focus {
     background-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 0 3px rgba(115, 141, 247, 0.25);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
     border-color: rgba(255, 255, 255, 0.5);
 }
 
@@ -95,55 +134,96 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
-.form-body label {
+/* Form control in white cards */
+.form-card .form-control {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    height: 50px;
+    color: #1e293b;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.form-card .form-control:focus {
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    border-color: #4361ee;
+}
+
+.form-card textarea.form-control {
+    min-height: 120px;
+    resize: none;
+}
+
+/* Labels */
+.form-label {
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
-    text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     margin-bottom: 0.75rem;
     display: block;
-    letter-spacing: 0.5px;
-    text-align: left;
-    width: 100%;
 }
 
+.form-card .form-label {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Error messages */
 .error-message {
-    color: #ff6b6b;
-    font-size: 0.75rem;
-    margin-top: -15px;
-    margin-bottom: 15px;
-    margin-left: 10px;
-    text-align: left;
-    width: 100%;
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }
 
-.submit-button {
-    background: linear-gradient(to right, var(--secondary-color), #738df7);
+/* Form text helpers */
+.form-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.form-card .form-text {
+    color: #64748b;
+}
+
+/* Buttons */
+.submit-button,
+.action-button {
+    background: linear-gradient(to right, #4361ee, #738df7);
     color: white;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
     border: none;
-    border-radius: 30px;
-    width: 100%;
+    border-radius: 8px;
     height: 50px;
-    margin-top: 15px;
+    margin-top: 1.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 15px rgba(16, 89, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .submit-button:hover,
-.submit-button:active {
-    background: linear-gradient(to right, #254EDB, var(--secondary-color));
+.action-button:hover {
+    background: linear-gradient(to right, #254EDB, #4361ee);
     transform: translateY(-3px);
-    box-shadow: 0 15px 20px rgba(16, 89, 255, 0.3);
+    box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+    color: white;
 }
 
-.submit-button:focus {
-    box-shadow: 0 0 0 3px rgba(115, 141, 247, 0.5);
+.submit-button:focus,
+.action-button:focus {
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
 }
 
-.submit-button:disabled {
+.submit-button:disabled,
+.action-button:disabled {
     background: linear-gradient(to right, #738df7, #a5b4f9);
     cursor: not-allowed;
     transform: none;
@@ -151,19 +231,20 @@
     opacity: 0.7;
 }
 
+/* QR code scan button */
 .scan-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--secondary-color);
+    background-color: #4361ee;
     color: white;
     border: none;
-    border-radius: 0 30px 30px 0;
+    border-radius: 0 8px 8px 0;
     padding: 0 20px;
-    margin-left: -2px;
     height: 50px;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 10px rgba(16, 89, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    text-decoration: none;
 }
 
 .scan-button:hover {
@@ -175,153 +256,171 @@
     font-size: 1.25rem;
 }
 
+/* Input with scan button container */
 .d-flex {
     display: flex;
     width: 100%;
 }
 
-/* Fix for input with scan button alignment */
 .d-flex .form-control {
     flex: 1;
-    border-radius: 30px 0 0 30px;
+    border-radius: 8px 0 0 8px;
     border-right: none;
 }
 
-/* Style form textarea for descriptions */
-.product-form textarea.form-control {
-    min-height: 120px;
-    padding-top: 15px;
-    resize: none;
-    border-radius: 20px;
+/* Verification result styling */
+.verification-alert {
+    border: none;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* Fixing row and column layout */
+.verification-alert.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-left: 4px solid #10b981;
+}
+
+.verification-alert.alert-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-left: 4px solid #ef4444;
+}
+
+.verification-alert h4 {
+    color: inherit;
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.verification-alert p {
+    color: inherit;
+    opacity: 0.9;
+}
+
+.verification-alert i {
+    color: inherit;
+}
+
+/* Product details in verification result */
+.product-details {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 1.5rem;
+}
+
+.product-details h5 {
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.product-details p {
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.product-details p:last-child {
+    margin-bottom: 0;
+}
+
+.product-details strong {
+    color: #64748b;
+    min-width: 150px;
+}
+
+.verification-count {
+    background-color: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.verification-count p {
+    margin-bottom: 0;
+}
+
+/* Form grid layout */
 .row {
     display: flex;
     flex-wrap: wrap;
     margin-right: -15px;
     margin-left: -15px;
-    width: 100%;
 }
 
-.col {
+.col, .col-md-6 {
     position: relative;
     width: 100%;
     padding-right: 15px;
     padding-left: 15px;
-    flex-basis: 0;
-    flex-grow: 1;
-    max-width: 100%;
 }
 
 .mb-3 {
     margin-bottom: 1rem !important;
-    width: 100%;
-}
-
-/* Form group styling */
-.form-group {
-    margin-bottom: 1rem;
-    width: 100%;
-}
-
-/* Login box */
-.login-box {
-    padding: 3rem 2rem;
-    text-align: center;
-    color: white;
-    animation: fadeIn 0.5s ease;
-}
-
-.login-box h2 {
-    margin-bottom: 1.5rem;
-}
-
-.login-box p {
-    margin-bottom: 2rem;
-    opacity: 0.8;
-}
-
-.login-box button {
-    padding: 0.75rem 2rem;
-    background: linear-gradient(to right, var(--secondary-color), #738df7);
-    border: none;
-    border-radius: 30px;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 15px rgba(16, 89, 255, 0.2);
-}
-
-.login-box button:hover {
-    background: linear-gradient(to right, #254EDB, var(--secondary-color));
-    transform: translateY(-3px);
-    box-shadow: 0 15px 20px rgba(16, 89, 255, 0.3);
-}
-
-/* Success alert styling */
-.alert {
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    text-align: center;
-    width: 100%;
-}
-
-.alert-success {
-    background-color: rgba(52, 211, 153, 0.1);
-    border-color: rgba(52, 211, 153, 0.3);
-    color: #10b981;
-}
-
-.alert i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Button grid */
-.d-grid {
-    display: grid;
-    gap: 0.5rem;
-    width: 100%;
-}
-
-/* Animation for form elements */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-header,
-.form-body {
-    animation: fadeIn 0.5s ease;
 }
 
 /* Responsive adjustments */
+@media (min-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
 @media (max-width: 768px) {
-    .form-container {
-        padding: 2rem 1rem;
+    .form-section {
+        padding: 2rem 0;
     }
 
-    .form-body {
-        padding: 1.5rem;
-    }
-
-    .login-box {
-        padding: 2rem 1.5rem;
+    .form-header {
+        padding: 1.5rem 1.5rem 1rem;
     }
 
     .form-header h2 {
         font-size: 1.5rem;
     }
 
-    .product-form textarea.form-control {
-        min-height: 100px;
+    .form-body {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+
+    .product-details p {
+        flex-direction: column;
+    }
+
+    .product-details strong {
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-card-header {
+        padding: 1.5rem;
+    }
+
+    .form-card-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .d-flex {
+        flex-direction: column;
+    }
+
+    .d-flex .form-control {
+        border-radius: 8px;
+        border-right: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 0.5rem;
+    }
+
+    .scan-button {
+        border-radius: 8px;
+        width: 100%;
     }
 }

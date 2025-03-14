@@ -1,5 +1,10 @@
+// src/services/BlockchainService.js
 import Web3 from 'web3';
+import config from '../config/blockchain';
 
+/**
+ * Service for interacting with the Ethereum blockchain
+ */
 class BlockchainService {
     constructor() {
         this.web3 = null;
@@ -7,44 +12,206 @@ class BlockchainService {
         this.networkId = null;
         this.productVerificationContract = null;
         this.initialized = false;
-        this.contractAddress = null; // Will be set from the artifact
+        this.contractAddress = config.contractAddress;
+        this.contractAbi = null;
     }
 
-    async loadContractArtifact() {
+    /**
+     * Load contract ABI from the provided JSON
+     * @private
+     * @returns {Promise<{abi: Array, address: string}>} Contract ABI and address
+     */
+    async _loadContractAbi() {
         try {
+            // Import the contract ABI from a static JSON file
             const response = await fetch('/contracts/ProductVerification.json');
             if (!response.ok) {
                 throw new Error(`Failed to fetch contract artifact: ${response.status} ${response.statusText}`);
             }
+            
             const artifact = await response.json();
-            
-            // Get the contract ABI and deployment address from the artifact
             this.contractAbi = artifact.abi;
-            
-            // Get the deployment address from networks object
-            // We'll use the first network found in the artifact
-            const networkIds = Object.keys(artifact.networks);
-            if (networkIds.length === 0) {
-                throw new Error("No deployed network found in the contract artifact");
-            }
-            this.contractAddress = artifact.networks[networkIds[0]].address;
             
             return {
                 abi: this.contractAbi,
                 address: this.contractAddress
             };
         } catch (error) {
-            console.error("Error loading contract artifact:", error);
-            throw error;
+            console.error("Error loading contract ABI:", error);
+            
+            // Fallback to using a hardcoded ABI if fetch fails
+            // This is a minimal ABI with only the methods we need
+            this.contractAbi = [
+                // Product registration
+                {
+                    "inputs": [
+                        { "name": "productId", "type": "string" },
+                        { "name": "manufacturerName", "type": "string" },
+                        { "name": "productDetails", "type": "string" },
+                        { "name": "manufacturingLocation", "type": "string" }
+                    ],
+                    "name": "registerProduct",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                // Product verification
+                {
+                    "inputs": [
+                        { "name": "productId", "type": "string" },
+                        { "name": "location", "type": "string" }
+                    ],
+                    "name": "verifyProduct",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                // Get product details
+                {
+                    "inputs": [{ "name": "productId", "type": "string" }],
+                    "name": "getProductDetails",
+                    "outputs": [
+                        { "name": "", "type": "string" },
+                        { "name": "", "type": "address" },
+                        { "name": "", "type": "address" },
+                        { "name": "", "type": "uint256" },
+                        { "name": "", "type": "string" },
+                        { "name": "", "type": "string" },
+                        { "name": "", "type": "string" },
+                        { "name": "", "type": "uint8" },
+                        { "name": "", "type": "bool" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Transfer ownership
+                {
+                    "inputs": [
+                        { "name": "productId", "type": "string" },
+                        { "name": "newOwner", "type": "address" },
+                        { "name": "transferConditions", "type": "string" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                // Get transfer history
+                {
+                    "inputs": [{ "name": "productId", "type": "string" }],
+                    "name": "getTransferHistory",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "name": "from", "type": "address" },
+                                { "name": "to", "type": "address" },
+                                { "name": "timestamp", "type": "uint256" },
+                                { "name": "transferConditions", "type": "string" }
+                            ],
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Get verification history
+                {
+                    "inputs": [{ "name": "productId", "type": "string" }],
+                    "name": "getVerificationHistory",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "name": "verifier", "type": "address" },
+                                { "name": "timestamp", "type": "uint256" },
+                                { "name": "location", "type": "string" },
+                                { "name": "result", "type": "bool" }
+                            ],
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Report counterfeit
+                {
+                    "inputs": [
+                        { "name": "productId", "type": "string" },
+                        { "name": "evidenceHash", "type": "string" },
+                        { "name": "description", "type": "string" },
+                        { "name": "location", "type": "string" }
+                    ],
+                    "name": "reportCounterfeit",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                // Register seller
+                {
+                    "inputs": [{ "name": "seller", "type": "address" }],
+                    "name": "registerSeller",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                // Check user role
+                {
+                    "inputs": [
+                        { "name": "role", "type": "bytes32" },
+                        { "name": "account", "type": "address" }
+                    ],
+                    "name": "hasSpecificRole",
+                    "outputs": [{ "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Get products owned
+                {
+                    "inputs": [{ "name": "owner", "type": "address" }],
+                    "name": "getProductsOwned",
+                    "outputs": [{ "name": "", "type": "string[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Get products manufactured
+                {
+                    "inputs": [{ "name": "manufacturer", "type": "address" }],
+                    "name": "getProductsManufactured",
+                    "outputs": [{ "name": "", "type": "string[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                // Events
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        { "indexed": false, "name": "productId", "type": "string" },
+                        { "indexed": false, "name": "verifier", "type": "address" },
+                        { "indexed": false, "name": "authentic", "type": "bool" }
+                    ],
+                    "name": "ProductVerified",
+                    "type": "event"
+                }
+            ];
+            
+            return {
+                abi: this.contractAbi,
+                address: this.contractAddress
+            };
         }
     }
 
+    /**
+     * Initialize the blockchain service
+     * @returns {Promise<boolean>} Initialization status
+     */
     async init() {
         if (this.initialized) return true;
 
         try {
-            // Load contract artifact first
-            const contractInfo = await this.loadContractArtifact();
+            // Load contract ABI first
+            const contractInfo = await this._loadContractAbi();
 
             // Initialize Web3
             if (window.ethereum) {
@@ -58,14 +225,14 @@ class BlockchainService {
             } else if (window.web3) {
                 this.web3 = new Web3(window.web3.currentProvider);
             } else {
-                const provider = new Web3.providers.HttpProvider('http://localhost:8545');
+                const provider = new Web3.providers.HttpProvider(config.rpcUrl || 'http://localhost:8545');
                 this.web3 = new Web3(provider);
             }
 
             this.accounts = await this.web3.eth.getAccounts();
             this.networkId = await this.web3.eth.net.getId();
 
-            // Create contract instance directly with web3
+            // Create contract instance
             this.productVerificationContract = new this.web3.eth.Contract(
                 contractInfo.abi,
                 contractInfo.address
@@ -74,17 +241,29 @@ class BlockchainService {
             this.initialized = true;
             return true;
         } catch (error) {
-            console.error("Initialization error:", error);
+            console.error("Blockchain initialization error:", error);
             throw error;
         }
     }
 
+    /**
+     * Get the current account address
+     * @returns {Promise<string>} Current account address
+     */
     async getCurrentAccount() {
         if (!this.initialized) await this.init();
         this.accounts = await this.web3.eth.getAccounts();
         return this.accounts[0];
     }
 
+    /**
+     * Register a new product on the blockchain
+     * @param {string} productId - Product ID
+     * @param {string} manufacturerName - Manufacturer name
+     * @param {string} productDetails - Product details or IPFS hash
+     * @param {string} manufacturingLocation - Manufacturing location
+     * @returns {Promise<object>} Transaction receipt
+     */
     async registerProduct(productId, manufacturerName, productDetails, manufacturingLocation) {
         if (!this.initialized) await this.init();
 
@@ -102,6 +281,12 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Verify a product on the blockchain
+     * @param {string} productId - Product ID
+     * @param {string} location - Verification location
+     * @returns {Promise<boolean>} Verification result
+     */
     async verifyProduct(productId, location) {
         if (!this.initialized) await this.init();
 
@@ -124,6 +309,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get product details from the blockchain
+     * @param {string} productId - Product ID
+     * @returns {Promise<object>} Product details
+     */
     async getProductDetails(productId) {
         if (!this.initialized) await this.init();
 
@@ -148,6 +338,13 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Transfer product ownership
+     * @param {string} productId - Product ID
+     * @param {string} newOwner - New owner address
+     * @param {string} transferConditions - Transfer conditions
+     * @returns {Promise<object>} Transaction receipt
+     */
     async transferOwnership(productId, newOwner, transferConditions) {
         if (!this.initialized) await this.init();
 
@@ -164,6 +361,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get product transfer history
+     * @param {string} productId - Product ID
+     * @returns {Promise<Array>} Transfer history
+     */
     async getTransferHistory(productId) {
         if (!this.initialized) await this.init();
 
@@ -183,6 +385,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get product verification history
+     * @param {string} productId - Product ID
+     * @returns {Promise<Array>} Verification history
+     */
     async getVerificationHistory(productId) {
         if (!this.initialized) await this.init();
 
@@ -202,6 +409,14 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Report a counterfeit product
+     * @param {string} productId - Product ID
+     * @param {string} evidenceHash - IPFS hash of evidence
+     * @param {string} description - Description of counterfeit issue
+     * @param {string} location - Location where counterfeit was found
+     * @returns {Promise<object>} Transaction receipt
+     */
     async reportCounterfeit(productId, evidenceHash, description, location) {
         if (!this.initialized) await this.init();
 
@@ -219,6 +434,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Register a new seller
+     * @param {string} sellerAddress - Seller address
+     * @returns {Promise<object>} Transaction receipt
+     */
     async registerSeller(sellerAddress) {
         if (!this.initialized) await this.init();
 
@@ -233,6 +453,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get user role information
+     * @param {string} address - User address
+     * @returns {Promise<object>} Role information
+     */
     async getUserRole(address) {
         if (!this.initialized) await this.init();
 
@@ -248,11 +473,16 @@ class BlockchainService {
             const isSeller = await this.productVerificationContract.methods.hasSpecificRole(SELLER_ROLE, account).call();
             const isAdmin = await this.productVerificationContract.methods.hasSpecificRole(ADMIN_ROLE, account).call();
 
+            let role = 'consumer';
+            if (isManufacturer) role = 'manufacturer';
+            else if (isSeller) role = 'seller';
+            else if (isAdmin) role = 'admin';
+
             return {
                 isManufacturer,
                 isSeller,
                 isAdmin,
-                role: isManufacturer ? 'manufacturer' : (isSeller ? 'seller' : 'consumer')
+                role
             };
         } catch (error) {
             console.error("Error checking user role:", error);
@@ -260,6 +490,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get products owned by an address
+     * @param {string} address - Owner address
+     * @returns {Promise<Array>} List of product IDs
+     */
     async getProductsOwned(address) {
         if (!this.initialized) await this.init();
 
@@ -272,6 +507,11 @@ class BlockchainService {
         }
     }
 
+    /**
+     * Get products manufactured by an address
+     * @param {string} address - Manufacturer address
+     * @returns {Promise<Array>} List of product IDs
+     */
     async getProductsManufactured(address) {
         if (!this.initialized) await this.init();
 

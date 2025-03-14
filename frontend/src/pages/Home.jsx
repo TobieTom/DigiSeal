@@ -1,39 +1,39 @@
 // src/pages/Home.jsx
-import { useNavigate } from 'react-router-dom'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
-import * as Yup from 'yup'
-import { Form as BootstrapForm, Row, Col, Button, Container } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { productIdHomeState, toastState } from '../store/atoms'
-import '../styles/home.css'
+import { useNavigate } from 'react-router-dom';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { Form as BootstrapForm, Row, Col, Button, Container, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { productIdHomeState, toastState } from '../store/atoms';
+import '../styles/home.css';
 
 function Home() {
-    const navigate = useNavigate()
-    const productId = useRecoilValue(productIdHomeState)
-    const setToast = useSetRecoilState(toastState)
+    const navigate = useNavigate();
+    const productId = useRecoilValue(productIdHomeState);
+    const setToast = useSetRecoilState(toastState);
 
     // Validation schema
     const validationSchema = Yup.object({
         productId: Yup.string()
             .required('Product ID is required')
-            .max(30, 'Product ID must be at most 30 characters'),
-    })
+            .max(50, 'Product ID must be at most 50 characters'),
+    });
 
     // Form initial values
     const initialValues = {
         productId: productId || '',
-    }
+    };
 
     // Handle form submission
     const handleSubmit = (values) => {
         try {
-            navigate(`/product/${values.productId}`)
+            navigate(`/product/${values.productId}`);
         } catch (error) {
-            console.error('Error:', error)
-            setToast('Failed to verify product. Please try again.')
+            console.error('Error:', error);
+            setToast('Failed to verify product. Please try again.');
         }
-    }
+    };
 
     return (
         <>
@@ -42,8 +42,8 @@ function Home() {
                     <div className="hero-content">
                         <h1>Authenticate Products with Blockchain</h1>
                         <p>
-                            Our blockchain-based verification system ensures product authenticity,
-                            tracks ownership history, and protects against counterfeits.
+                            DigiSeal uses blockchain technology to verify product authenticity,
+                            track ownership history, and protect consumers from counterfeits.
                         </p>
                         <div className="hero-buttons">
                             <Link to="/scan" className="hero-button primary">
@@ -60,8 +60,8 @@ function Home() {
             <section className="verify-section">
                 <Container>
                     <div className="section-header">
-                        <h2>Verify Your Product</h2>
-                        <p>Enter a product ID or scan a QR code to check authenticity</p>
+                        <h2>Verify Product Authenticity</h2>
+                        <p>Enter a product ID or scan a QR code to check if a product is genuine</p>
                     </div>
 
                     <div className="verify-form-container">
@@ -99,6 +99,7 @@ function Home() {
                                             className="verify-button"
                                             disabled={isSubmitting}
                                         >
+                                            <i className="bi bi-shield-check me-2"></i>
                                             Verify Product
                                         </Button>
                                     </Form>
@@ -109,45 +110,114 @@ function Home() {
                 </Container>
             </section>
 
+            <section className="how-it-works-section">
+                <Container>
+                    <div className="section-header">
+                        <h2>How DigiSeal Works</h2>
+                        <p>Combining blockchain technology with easy-to-use verification tools</p>
+                    </div>
+
+                    <div className="process-steps">
+                        <div className="process-step">
+                            <div className="step-number">1</div>
+                            <div className="step-icon">
+                                <i className="bi bi-box-seam"></i>
+                            </div>
+                            <div className="step-content">
+                                <h3>Manufacturer Registers Product</h3>
+                                <p>Products are registered on the blockchain with unique identifiers and detailed specifications</p>
+                            </div>
+                        </div>
+                        
+                        <div className="step-connector"></div>
+                        
+                        <div className="process-step">
+                            <div className="step-number">2</div>
+                            <div className="step-icon">
+                                <i className="bi bi-arrow-left-right"></i>
+                            </div>
+                            <div className="step-content">
+                                <h3>Secure Transfer of Ownership</h3>
+                                <p>Each transfer in the supply chain is recorded on the immutable blockchain</p>
+                            </div>
+                        </div>
+                        
+                        <div className="step-connector"></div>
+                        
+                        <div className="process-step">
+                            <div className="step-number">3</div>
+                            <div className="step-icon">
+                                <i className="bi bi-qr-code"></i>
+                            </div>
+                            <div className="step-content">
+                                <h3>QR Code Generation</h3>
+                                <p>Unique QR codes are generated for easy scanning and verification</p>
+                            </div>
+                        </div>
+                        
+                        <div className="step-connector"></div>
+                        
+                        <div className="process-step">
+                            <div className="step-number">4</div>
+                            <div className="step-icon">
+                                <i className="bi bi-shield-check"></i>
+                            </div>
+                            <div className="step-content">
+                                <h3>Consumer Verification</h3>
+                                <p>Customers can easily verify product authenticity and view full history</p>
+                            </div>
+                        </div>
+                    </div>
+                </Container>
+            </section>
+
             <section className="features-section">
                 <Container>
                     <div className="section-header">
-                        <h2>How It Works</h2>
-                        <p>Blockchain technology ensures secure and transparent product verification</p>
+                        <h2>Key Features</h2>
+                        <p>DigiSeal offers powerful tools to combat counterfeiting</p>
                     </div>
 
                     <div className="features-grid">
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <i className="bi bi-shield-check" style={{fontSize: "48px"}}></i>
-                            </div>
-                            <h3>Verify Authenticity</h3>
-                            <p>Instantly verify if a product is authentic using our blockchain technology.</p>
-                        </div>
+                        <Card className="feature-card">
+                            <Card.Body>
+                                <div className="feature-icon">
+                                    <i className="bi bi-shield-check"></i>
+                                </div>
+                                <h3>Verify Authenticity</h3>
+                                <p>Instantly verify if a product is authentic using secure blockchain technology.</p>
+                            </Card.Body>
+                        </Card>
 
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <i className="bi bi-patch-check" style={{fontSize: "48px"}}></i>
-                            </div>
-                            <h3>Check History</h3>
-                            <p>View complete product information, manufacturing details, and ownership history.</p>
-                        </div>
+                        <Card className="feature-card">
+                            <Card.Body>
+                                <div className="feature-icon">
+                                    <i className="bi bi-patch-check"></i>
+                                </div>
+                                <h3>Complete History</h3>
+                                <p>View complete product information, manufacturing details, and ownership history.</p>
+                            </Card.Body>
+                        </Card>
 
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <i className="bi bi-shop" style={{fontSize: "48px"}}></i>
-                            </div>
-                            <h3>Secure Purchases</h3>
-                            <p>Buy with confidence knowing your products are verified and authentic.</p>
-                        </div>
+                        <Card className="feature-card">
+                            <Card.Body>
+                                <div className="feature-icon">
+                                    <i className="bi bi-shop"></i>
+                                </div>
+                                <h3>Secure Purchases</h3>
+                                <p>Buy with confidence knowing your products are verified and authentic.</p>
+                            </Card.Body>
+                        </Card>
 
-                        <div className="feature-card">
-                            <div className="feature-icon">
-                                <i className="bi bi-box-seam" style={{fontSize: "48px"}}></i>
-                            </div>
-                            <h3>Track Products</h3>
-                            <p>Manufacturers can register products and track their full lifecycle.</p>
-                        </div>
+                        <Card className="feature-card">
+                            <Card.Body>
+                                <div className="feature-icon">
+                                    <i className="bi bi-box-seam"></i>
+                                </div>
+                                <h3>Lifecycle Tracking</h3>
+                                <p>Manufacturers can register products and track their full lifecycle.</p>
+                            </Card.Body>
+                        </Card>
                     </div>
                 </Container>
             </section>
@@ -189,7 +259,7 @@ function Home() {
                                     <div className="block-header">Block #1</div>
                                     <div className="block-content">
                                         <div className="hash">Hash: 0x3f7...</div>
-                                        <div className="data">Product Data</div>
+                                        <div className="data">Product Registration</div>
                                     </div>
                                 </div>
                                 <div className="block-connector"></div>
@@ -197,7 +267,7 @@ function Home() {
                                     <div className="block-header">Block #2</div>
                                     <div className="block-content">
                                         <div className="hash">Hash: 0x9d2...</div>
-                                        <div className="data">Owner Data</div>
+                                        <div className="data">Ownership Transfer</div>
                                     </div>
                                 </div>
                                 <div className="block-connector"></div>
@@ -205,7 +275,7 @@ function Home() {
                                     <div className="block-header">Block #3</div>
                                     <div className="block-content">
                                         <div className="hash">Hash: 0xe1a...</div>
-                                        <div className="data">Transfer Data</div>
+                                        <div className="data">Verification Event</div>
                                     </div>
                                 </div>
                             </div>
@@ -213,8 +283,25 @@ function Home() {
                     </div>
                 </Container>
             </section>
+
+            <section className="cta-section">
+                <Container>
+                    <div className="cta-content">
+                        <h2>Ready to Combat Counterfeiting?</h2>
+                        <p>Join DigiSeal today and protect your products and customers</p>
+                        <div className="cta-buttons">
+                            <Link to="/login" className="cta-button primary">
+                                Create Account
+                            </Link>
+                            <Link to="/scan" className="cta-button secondary">
+                                Try Product Verification
+                            </Link>
+                        </div>
+                    </div>
+                </Container>
+            </section>
         </>
-    )
+    );
 }
 
-export default Home
+export default Home;

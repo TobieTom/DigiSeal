@@ -1,19 +1,20 @@
 /* src/styles/header.css */
+
 .main-header {
-    background-color: var(--primary-color);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(to right, #1a1e3b, #2d3367);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
+    height: 70px;
 }
 
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 2rem;
-    height: 80px;
-    color: white;
+    padding: 0 1.5rem;
+    height: 100%;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -21,198 +22,264 @@
 .navbar-brand {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .logo {
     display: flex;
     align-items: center;
-}
-
-.logo a {
-    display: flex;
-    align-items: center;
+    text-decoration: none;
+    gap: 0.75rem;
 }
 
 .logo-img {
-    height: 50px;
+    height: 36px;
     object-fit: contain;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    display: block;
 }
 
 .verification-container {
     display: flex;
     align-items: center;
+    gap: 1rem;
 }
 
 .scan-button-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
     color: white;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    border-radius: 50px;
     transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
 }
 
 .scan-button-header:hover {
-    background-color: var(--secondary-color);
+    background-color: rgba(255, 255, 255, 0.25);
     color: white;
     transform: translateY(-2px);
 }
 
-.scan-button-header span {
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.nav-items {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.nav-link {
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
     position: relative;
+    z-index: 1001;
+    width: 40px;
+    height: 34px;
 }
 
-.nav-link a,
-.nav-link button {
-    display: flex;
-    align-items: center;
-    color: white;
-    text-decoration: none;
+.menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    margin-bottom: 6px;
+    border-radius: 3px;
     transition: all 0.3s ease;
 }
 
-.nav-link a.active {
-    color: var(--secondary-color);
+.menu-toggle.active span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
 }
 
-.nav-link span {
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
+
+.main-nav {
     display: flex;
     align-items: center;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
     gap: 0.5rem;
 }
 
-.nav-link h5 {
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0;
+.nav-item {
+    position: relative;
 }
 
-.nav-link img,
-.nav-link svg {
-    width: 20px;
-    height: 20px;
-}
-
-.nav-link a::after {
-    content: "";
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: var(--secondary-color);
-    transition: width 0.3s ease;
-}
-
-.nav-link a:hover::after,
-.nav-link a.active::after {
-    width: 100%;
-}
-
-.auth-button {
-    background: none;
-    border: none;
-    color: white;
+.nav-item a,
+.nav-item button {
     display: flex;
     align-items: center;
-    padding: 0;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.nav-item a:hover,
+.nav-item button:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item a.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+}
+
+.nav-item a.active i {
+    color: #4361ee;
+}
+
+.login-button,
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-weight: 500;
     cursor: pointer;
 }
 
-.auth-button:hover {
-    color: var(--secondary-color);
+.login-button {
+    background-color: #4361ee;
 }
 
-.auth-link {
-    margin-left: 1rem;
+.login-button:hover {
+    background-color: #3a55e0;
+    transform: translateY(-2px);
 }
 
-.hamburger-menu {
-    display: none;
-    cursor: pointer;
+.logout-button {
+    color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
 }
 
-/* Responsive styles */
+.logout-button:hover {
+    background-color: rgba(255, 107, 107, 0.2);
+}
+
 @media (max-width: 1100px) {
-    .navbar {
-        padding: 0.5rem 1rem;
+
+    .nav-item a,
+    .nav-item button {
+        padding: 0.75rem 0.85rem;
     }
 
-    .nav-link h5 {
+    .nav-item a span,
+    .nav-item button span {
         font-size: 0.9rem;
-    }
-
-    .nav-items {
-        gap: 1rem;
     }
 }
 
 @media (max-width: 992px) {
-    .navbar-brand {
-        flex: 1;
+    .menu-toggle {
+        display: block;
     }
 
-    .nav-items {
+    .main-nav {
         position: fixed;
-        top: 80px;
-        right: -100%;
-        flex-direction: column;
-        width: 250px;
-        height: calc(100vh - 80px);
-        background-color: var(--primary-color);
-        padding: 2rem 1.5rem;
-        gap: 1.5rem;
-        transition: right 0.3s ease;
-        align-items: flex-start;
+        top: 70px;
+        right: -300px;
+        width: 280px;
+        height: calc(100vh - 70px);
+        background: linear-gradient(to bottom, #1a1e3b, #2d3367);
         box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        transition: right 0.3s ease;
+        padding: 1.5rem 0;
+        overflow-y: auto;
     }
 
-    .nav-items.open {
+    .main-nav.active {
         right: 0;
     }
 
-    .hamburger-menu {
-        display: block;
-    }
-}
-
-@media (max-width: 576px) {
-    .navbar {
-        height: 70px;
-        padding: 0.5rem;
+    .nav-list {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+        padding: 0 1rem;
     }
 
-    .logo-img {
-        height: 40px;
+    .nav-item {
+        width: 100%;
     }
 
-    .scan-button-header {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
+    .nav-item a,
+    .nav-item button {
+        padding: 1rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .login-button,
+    .logout-button {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 1rem;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .verification-container {
+        margin-left: auto;
+        margin-right: 1rem;
     }
 
     .scan-button-header span {
         display: none;
     }
 
-    .nav-items {
-        top: 70px;
-        width: 100%;
-        height: calc(100vh - 70px);
+    .scan-button-header {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-header {
+        height: 60px;
+    }
+
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .logo-img {
+        height: 30px;
+    }
+
+    .main-nav {
+        top: 60px;
+        height: calc(100vh - 60px);
+    }
+
+    .scan-button-header {
+        font-size: 1.2rem;
     }
 }
