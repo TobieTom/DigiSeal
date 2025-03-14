@@ -1,16 +1,18 @@
-/* src/styles/footer.css */
+/* src/styles/footer.css - Enhanced version */
 
 .site-footer {
     margin-top: auto;
-    background-color: #1a1e3b;
+    background: linear-gradient(to bottom, #1a1e3b, #161a33);
     color: rgba(255, 255, 255, 0.8);
 }
 
+/* Main footer section with content */
 .footer-main {
     padding: 4rem 0 3rem;
     position: relative;
 }
 
+/* Colorful top border */
 .footer-main::before {
     content: '';
     position: absolute;
@@ -18,9 +20,10 @@
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(to right, #4361ee, #8b5cf6);
+    background: linear-gradient(to right, var(--secondary-main), var(--accent-purple));
 }
 
+/* Container for responsive width */
 .container {
     width: 100%;
     max-width: 1200px;
@@ -28,12 +31,14 @@
     padding: 0 1.5rem;
 }
 
+/* Main content grid */
 .footer-content {
     display: grid;
     grid-template-columns: 1fr;
     gap: 3rem;
 }
 
+/* Logo and tagline section */
 .footer-logo {
     text-align: center;
 }
@@ -48,6 +53,7 @@
 
 .footer-logo-img {
     height: 40px;
+    filter: brightness(1.2);
 }
 
 .footer-logo-text {
@@ -62,10 +68,39 @@
     margin-top: 0.5rem;
 }
 
+/* NEW: Role badge in footer */
+.footer-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1.25rem;
+    border-radius: 30px;
+    margin-top: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.footer-role-badge i {
+    color: var(--secondary-light);
+    font-size: 1.1rem;
+}
+
+.footer-role-badge span {
+    color: white;
+    font-weight: 600;
+}
+
+/* Links section */
 .footer-links-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 2rem;
+}
+
+.footer-links-column {
+    display: flex;
+    flex-direction: column;
 }
 
 .footer-links-column h3 {
@@ -84,7 +119,15 @@
     left: 0;
     width: 40px;
     height: 2px;
-    background-color: #4361ee;
+    background-color: var(--secondary-main);
+}
+
+/* NEW: Column description */
+.footer-column-desc {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
 }
 
 .footer-links {
@@ -102,7 +145,9 @@
     text-decoration: none;
     transition: all 0.2s ease;
     position: relative;
-    padding-left: 1rem;
+    padding-left: 1.25rem;
+    font-size: 0.95rem;
+    display: inline-block;
 }
 
 .footer-links li a::before {
@@ -110,23 +155,26 @@
     position: absolute;
     left: 0;
     top: 0;
-    color: #4361ee;
+    color: var(--secondary-main);
     font-weight: bold;
     transition: transform 0.2s ease;
 }
 
 .footer-links li a:hover {
     color: white;
-    padding-left: 1.25rem;
+    padding-left: 1.5rem;
 }
 
 .footer-links li a:hover::before {
     transform: translateX(3px);
+    color: var(--secondary-light);
 }
 
+/* Social links */
 .social-links {
     display: flex;
     gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .social-link {
@@ -144,14 +192,72 @@
 }
 
 .social-link:hover {
-    background-color: #4361ee;
+    background-color: var(--secondary-main);
     transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     color: white;
 }
 
+/* NEW: Newsletter signup */
+.footer-newsletter {
+    margin-top: 1.5rem;
+}
+
+.footer-newsletter h4 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.footer-newsletter p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.newsletter-form {
+    display: flex;
+    height: 40px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px 0 0 20px;
+    padding: 0 1rem;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.newsletter-form button {
+    width: 40px;
+    border: none;
+    background-color: var(--secondary-main);
+    color: white;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    background-color: var(--secondary-dark);
+}
+
+/* Bottom footer with copyright */
 .footer-bottom {
     padding: 1.5rem 0;
     background-color: rgba(0, 0, 0, 0.2);
+    font-size: 0.9rem;
 }
 
 .footer-bottom-content {
@@ -164,7 +270,6 @@
 
 .copyright {
     margin: 0;
-    font-size: 0.9rem;
 }
 
 .footer-legal-links {
@@ -175,14 +280,28 @@
 .footer-legal-links a {
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    font-size: 0.9rem;
     transition: color 0.2s ease;
 }
 
 .footer-legal-links a:hover {
     color: white;
+    text-decoration: underline;
 }
 
+/* Enhanced color schemes based on user role */
+body[data-role="manufacturer"] .footer-role-badge {
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+body[data-role="seller"] .footer-role-badge {
+    background-color: rgba(139, 92, 246, 0.15);
+}
+
+body[data-role="consumer"] .footer-role-badge {
+    background-color: rgba(16, 185, 129, 0.15);
+}
+
+/* Responsive styles */
 @media (min-width: 768px) {
     .footer-content {
         grid-template-columns: 300px 1fr;
@@ -207,6 +326,10 @@
         flex-direction: column;
         text-align: center;
     }
+    
+    .footer-legal-links {
+        justify-content: center;
+    }
 }
 
 @media (max-width: 576px) {
@@ -219,17 +342,13 @@
         gap: 2rem;
     }
 
-    .footer-links-column h3 {
-        font-size: 1rem;
+    .footer-links-column {
+        text-align: center;
     }
 
     .footer-links-column h3::after {
         left: 50%;
         transform: translateX(-50%);
-    }
-
-    .footer-links {
-        text-align: center;
     }
 
     .footer-links li a {
@@ -246,5 +365,10 @@
 
     .social-links {
         justify-content: center;
+    }
+    
+    .newsletter-form {
+        max-width: 280px;
+        margin: 0 auto;
     }
 }

@@ -1,4 +1,4 @@
-// src/components/layout/Header.jsx
+// src/components/layout/Header.jsx - Enhanced version
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -21,7 +21,7 @@ function Header() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Function to toggle the hamburger menu
+    // Toggle the hamburger menu
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
     };
@@ -71,42 +71,44 @@ function Header() {
         checkLoginStatus();
     }, []);
 
-    // Manufacturer Links
-    const manufacturerLinks = [
-        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
-        { path: '/add', icon: 'bi-plus-circle', label: 'Add Product' },
-        { path: '/products', icon: 'bi-box-seam', label: 'My Products' },
-        { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
-        { path: '/registerSeller', icon: 'bi-person-plus', label: 'Register Seller' },
-        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
-    ];
-
-    // Seller Links
-    const sellerLinks = [
-        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
-        { path: '/sell', icon: 'bi-cart-check', label: 'Sell Product' },
-        { path: '/products', icon: 'bi-box-seam', label: 'Inventory' },
-        { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
-        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
-    ];
-
-    // Consumer Links
-    const consumerLinks = [
-        { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
-        { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
-        { path: '/products', icon: 'bi-collection', label: 'My Products' },
-    ];
-
-    // Get the appropriate links based on user role
-    const getLinks = () => {
+    // Role-specific navigation links
+    const getNavigationLinks = () => {
+        // Common links for all users
+        const commonLinks = [
+            { path: '/dashboard', icon: 'bi-house', label: 'Dashboard' },
+            { path: '/buy', icon: 'bi-shield-check', label: 'Verify Product' },
+            { path: '/scan', icon: 'bi-qr-code-scan', label: 'Scan QR' },
+        ];
+        
+        // Manufacturer-specific links
         if (userRole === 'manufacturer') {
-            return manufacturerLinks;
-        } else if (userRole === 'seller') {
-            return sellerLinks;
-        } else {
-            return consumerLinks;
+            return [
+                ...commonLinks,
+                { path: '/add', icon: 'bi-plus-circle', label: 'Add Product' },
+                { path: '/products', icon: 'bi-box-seam', label: 'My Products' },
+                { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
+                { path: '/registerSeller', icon: 'bi-person-plus', label: 'Register Seller' },
+            ];
+        } 
+        // Seller-specific links
+        else if (userRole === 'seller') {
+            return [
+                ...commonLinks,
+                { path: '/sell', icon: 'bi-cart-check', label: 'Sell Product' },
+                { path: '/products', icon: 'bi-box-seam', label: 'Inventory' },
+                { path: '/addowner', icon: 'bi-arrow-left-right', label: 'Transfer' },
+            ];
+        } 
+        // Consumer links (default)
+        else {
+            return [
+                ...commonLinks,
+                { path: '/products', icon: 'bi-collection', label: 'My Products' },
+            ];
         }
     };
+
+    const navigationLinks = getNavigationLinks();
 
     return (
         <header className="main-header">
@@ -140,7 +142,7 @@ function Header() {
                     <ul className="nav-list">
                         {isLoggedIn ? (
                             <>
-                                {getLinks().map((link, index) => (
+                                {navigationLinks.map((link, index) => (
                                     <li key={index} className="nav-item">
                                         <Link 
                                             to={link.path} 
@@ -151,6 +153,8 @@ function Header() {
                                         </Link>
                                     </li>
                                 ))}
+                                
+                                {/* Profile link appears for all logged-in users */}
                                 <li className="nav-item">
                                     <Link 
                                         to="/profile" 
@@ -160,6 +164,8 @@ function Header() {
                                         <span>Profile</span>
                                     </Link>
                                 </li>
+                                
+                                {/* Logout button for all logged-in users */}
                                 <li className="nav-item logout-item">
                                     <button onClick={handleLogout} className="logout-button">
                                         <i className="bi bi-box-arrow-right"></i>
@@ -169,6 +175,7 @@ function Header() {
                             </>
                         ) : (
                             <>
+                                {/* Links for non-logged-in users */}
                                 <li className="nav-item">
                                     <Link 
                                         to="/" 

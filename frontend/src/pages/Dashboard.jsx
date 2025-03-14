@@ -1,9 +1,9 @@
-// src/pages/Dashboard.jsx
+// src/pages/Dashboard.jsx - Enhanced version with role-based content
 import { useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Link } from 'react-router-dom';
 import { userRoleState, toastState } from '../store/atoms';
-import { Card, Row, Col, Container, Button, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Container, Button, Alert, Badge } from 'react-bootstrap';
 import BlockchainStatus from '../components/common/BlockchainStatus';
 import blockchainService from '../services/BlockchainService';
 import Loader from '../components/common/Loader';
@@ -185,6 +185,7 @@ function Dashboard() {
                         setRecentActivity(activities);
                     } catch (error) {
                         console.error('Error fetching blockchain data:', error);
+                        // Use mock data as fallback
                         setMockData();
                     }
                 } else {
@@ -296,6 +297,7 @@ function Dashboard() {
         }
     }, [userRole, setToast, blockchainConnected, userAddress]);
 
+    // Get welcome message based on time of day
     const getWelcomeMessage = () => {
         const currentHour = new Date().getHours();
         let greeting = "Welcome to your Dashboard";
@@ -311,15 +313,112 @@ function Dashboard() {
         return greeting;
     };
 
-    // Get the role display name
-    const getRoleName = () => {
+    // Get the role display name and properties
+    const getRoleDetails = () => {
         switch (userRole) {
             case 'manufacturer':
-                return 'Manufacturer';
+                return {
+                    name: 'Manufacturer',
+                    description: 'Register products, manage supply chain, and track authenticity',
+                    color: 'primary',
+                    icon: 'bi-building',
+                    headerClass: 'manufacturer-header'
+                };
             case 'seller':
-                return 'Authorized Seller';
+                return {
+                    name: 'Authorized Seller',
+                    description: 'Sell authentic products and manage your inventory',
+                    color: 'purple',
+                    icon: 'bi-shop',
+                    headerClass: 'seller-header'
+                };
             default:
-                return 'Consumer';
+                return {
+                    name: 'Consumer',
+                    description: 'Verify products and track your purchases',
+                    color: 'success',
+                    icon: 'bi-person',
+                    headerClass: 'consumer-header'
+                };
+        }
+    };
+
+    const roleDetails = getRoleDetails();
+
+    // Get quick actions based on role
+    const getQuickActions = () => {
+        // Common actions for all roles
+        const commonActions = [
+            {
+                label: 'Verify Product',
+                path: '/buy',
+                icon: 'bi-shield-check',
+                className: 'verify',
+                description: 'Check authenticity of a product'
+            },
+            {
+                label: 'Scan QR Code',
+                path: '/scan',
+                icon: 'bi-qr-code-scan',
+                className: 'scan',
+                description: 'Quickly scan a product QR code'
+            },
+            {
+                label: 'My Products',
+                path: '/products',
+                icon: 'bi-box-seam',
+                className: 'products',
+                description: 'View and manage your products'
+            }
+        ];
+
+        // Role-specific actions
+        if (userRole === 'manufacturer') {
+            return [
+                {
+                    label: 'Add New Product',
+                    path: '/add',
+                    icon: 'bi-plus-circle',
+                    className: 'manufacturer',
+                    description: 'Register a new product on the blockchain'
+                },
+                ...commonActions,
+                {
+                    label: 'Transfer Ownership',
+                    path: '/addowner',
+                    icon: 'bi-arrow-left-right',
+                    className: 'transfer',
+                    description: 'Transfer a product to another user'
+                },
+                {
+                    label: 'Register Seller',
+                    path: '/registerSeller',
+                    icon: 'bi-person-plus',
+                    className: 'register',
+                    description: 'Authorize a new seller'
+                }
+            ];
+        } else if (userRole === 'seller') {
+            return [
+                {
+                    label: 'Sell Product',
+                    path: '/sell',
+                    icon: 'bi-cart-check',
+                    className: 'seller',
+                    description: 'Process a new sale and transfer ownership'
+                },
+                ...commonActions,
+                {
+                    label: 'Transfer Ownership',
+                    path: '/addowner',
+                    icon: 'bi-arrow-left-right',
+                    className: 'transfer',
+                    description: 'Transfer a product to another user'
+                }
+            ];
+        } else {
+            // Consumer actions
+            return commonActions;
         }
     };
 
@@ -330,16 +429,14 @@ function Dashboard() {
     return (
         <div className="dashboard-container">
             <Container>
-                <div className="dashboard-header">
-                    <div className="role-badge">{getRoleName()}</div>
+                {/* Role-specific dashboard header */}
+                <div className={`dashboard-header ${roleDetails.headerClass}`}>
+                    <div className="role-indicator">
+                        <i className={`bi ${roleDetails.icon}`}></i>
+                        <Badge bg={roleDetails.color} className="role-badge">{roleDetails.name}</Badge>
+                    </div>
                     <h1>{getWelcomeMessage()}</h1>
-                    <p>
-                        {userRole === 'manufacturer'
-                            ? 'Manage your products and monitor authenticity'
-                            : userRole === 'seller'
-                                ? 'Track your inventory and handle sales'
-                                : 'Verify and track authentic products'}
-                    </p>
+                    <p>{roleDetails.description}</p>
                     {userAddress && (
                         <div className="wallet-address mt-2">
                             <small>Connected Account: {userAddress.substring(0, 6)}...{userAddress.substring(38)}</small>
@@ -347,6 +444,7 @@ function Dashboard() {
                     )}
                 </div>
 
+                {/* Blockchain connection alert */}
                 {!blockchainConnected && (
                     <Alert variant="warning" className="blockchain-alert mb-4">
                         <div className="d-flex align-items-center">
@@ -372,7 +470,7 @@ function Dashboard() {
                     </Alert>
                 )}
 
-                {/* Stats Section */}
+                {/* Stats Section with role-specific metrics */}
                 <div className="dashboard-section">
                     <h2>Overview</h2>
                     <Row className="stats-row">
@@ -442,59 +540,17 @@ function Dashboard() {
                     </Row>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Quick Actions - Role-specific shortcuts */}
                 <div className="dashboard-section">
                     <h2>Quick Actions</h2>
                     <div className="quick-actions">
-                        {userRole === 'manufacturer' && (
-                            <Link to="/add" className="quick-action-card manufacturer">
-                                <div className="quick-action-icon"><i className="bi bi-plus-circle"></i></div>
-                                <h3>Add New Product</h3>
-                                <p>Register a new product on the blockchain</p>
+                        {getQuickActions().map((action, index) => (
+                            <Link key={index} to={action.path} className={`quick-action-card ${action.className}`}>
+                                <div className="quick-action-icon"><i className={`bi ${action.icon}`}></i></div>
+                                <h3>{action.label}</h3>
+                                <p>{action.description}</p>
                             </Link>
-                        )}
-                        
-                        {userRole === 'seller' && (
-                            <Link to="/sell" className="quick-action-card seller">
-                                <div className="quick-action-icon"><i className="bi bi-cart-check"></i></div>
-                                <h3>Sell Product</h3>
-                                <p>Process a new sale and transfer ownership</p>
-                            </Link>
-                        )}
-                        
-                        <Link to="/buy" className="quick-action-card verify">
-                            <div className="quick-action-icon"><i className="bi bi-shield-check"></i></div>
-                            <h3>Verify Product</h3>
-                            <p>Check authenticity of a product</p>
-                        </Link>
-                        
-                        <Link to="/scan" className="quick-action-card scan">
-                            <div className="quick-action-icon"><i className="bi bi-qr-code-scan"></i></div>
-                            <h3>Scan QR Code</h3>
-                            <p>Quickly scan a product QR code</p>
-                        </Link>
-                        
-                        <Link to="/products" className="quick-action-card products">
-                            <div className="quick-action-icon"><i className="bi bi-box-seam"></i></div>
-                            <h3>My Products</h3>
-                            <p>View and manage your products</p>
-                        </Link>
-                        
-                        {userRole !== 'consumer' && (
-                            <Link to="/addowner" className="quick-action-card transfer">
-                                <div className="quick-action-icon"><i className="bi bi-arrow-left-right"></i></div>
-                                <h3>Transfer Ownership</h3>
-                                <p>Transfer a product to another user</p>
-                            </Link>
-                        )}
-                        
-                        {userRole === 'manufacturer' && (
-                            <Link to="/registerSeller" className="quick-action-card register">
-                                <div className="quick-action-icon"><i className="bi bi-person-plus"></i></div>
-                                <h3>Register Seller</h3>
-                                <p>Authorize a new seller</p>
-                            </Link>
-                        )}
+                        ))}
                     </div>
                 </div>
 
@@ -504,7 +560,9 @@ function Dashboard() {
                         <div className="dashboard-section">
                             <div className="section-header-with-action">
                                 <h2>Recent Products</h2>
-                                <Button as={Link} to="/products" variant="outline-primary" size="sm">View All</Button>
+                                <Button as={Link} to="/products" variant="outline-primary" size="sm">
+                                    View All
+                                </Button>
                             </div>
                             
                             {recentProducts.length === 0 ? (
@@ -583,10 +641,48 @@ function Dashboard() {
                     </Col>
                 </Row>
 
-                {/* Blockchain Status */}
+                {/* Blockchain Status Card */}
                 <div className="dashboard-section">
                     <h2>Blockchain Connection</h2>
                     <BlockchainStatus />
+                </div>
+                
+                {/* Role-specific tips section */}
+                <div className="dashboard-section">
+                    <div className="tips-card">
+                        <div className="tips-header">
+                            <i className={`bi ${roleDetails.icon}`}></i>
+                            <h3>Tips for {roleDetails.name}s</h3>
+                        </div>
+                        <div className="tips-content">
+                            {userRole === 'manufacturer' && (
+                                <ul className="tips-list">
+                                    <li>Register all your products on the blockchain to establish authenticity</li>
+                                    <li>Register authorized sellers to maintain a secure supply chain</li>
+                                    <li>Use unique IDs for each product to ensure proper tracking</li>
+                                    <li>Monitor your products' verification history to detect potential issues</li>
+                                </ul>
+                            )}
+                            
+                            {userRole === 'seller' && (
+                                <ul className="tips-list">
+                                    <li>Always verify products before adding them to your inventory</li>
+                                    <li>Use the "Transfer Ownership" feature when selling products</li>
+                                    <li>Monitor your inventory for authenticity status changes</li>
+                                    <li>Encourage customers to verify product authenticity using DigiSeal</li>
+                                </ul>
+                            )}
+                            
+                            {userRole === 'consumer' && (
+                                <ul className="tips-list">
+                                    <li>Always verify products before purchase using the QR code scanner</li>
+                                    <li>Check the verification history to see previous authentications</li>
+                                    <li>Report suspected counterfeit products immediately</li>
+                                    <li>Track your owned products in the "My Products" section</li>
+                                </ul>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </Container>
         </div>

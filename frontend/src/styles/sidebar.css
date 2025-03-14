@@ -1,0 +1,298 @@
+/* src/styles/sidebar.css */
+
+/* Sidebar container */
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to bottom, #1a1e3b, #2d3367);
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Overlay for mobile sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar header with logo */
+.sidebar-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar-logo img {
+    height: 32px;
+    width: auto;
+}
+
+.sidebar-logo span {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.25rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.sidebar-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* User role display */
+.user-role {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.role-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.role-icon.primary {
+    background-color: rgba(67, 97, 238, 0.25);
+    color: #738df7;
+}
+
+.role-icon.purple {
+    background-color: rgba(139, 92, 246, 0.25);
+    color: #a78bfa;
+}
+
+.role-icon.success {
+    background-color: rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+}
+
+.role-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.role-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.25rem;
+}
+
+.role-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Navigation items */
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin: 0.25rem 0;
+}
+
+.nav-item a {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1.5rem;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.75);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-item a:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item a.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 500;
+}
+
+.nav-item a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, #4361ee, #818cf8);
+}
+
+.nav-item a i {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.75);
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.profile-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-link i {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+/* Network indicator in footer */
+.blockchain-status {
+    margin-top: 0.5rem;
+}
+
+.network-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.indicator-dot::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: rgba(16, 185, 129, 0.4);
+    border-radius: 50%;
+    top: -2px;
+    left: -2px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive sidebar - hide by default on mobile */
+@media (max-width: 991px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .sidebar-close {
+        display: block;
+    }
+}
+
+/* Main content adjustments for sidebar */
+.main-content {
+    margin-left: 280px;
+    transition: margin 0.3s ease;
+}
+
+@media (max-width: 991px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

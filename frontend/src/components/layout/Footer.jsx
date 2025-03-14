@@ -1,10 +1,10 @@
-// src/components/layout/Footer.jsx
+// src/components/layout/Footer.jsx - Enhanced version
 import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { loginState, userRoleState } from '../../store/atoms';
 import '../../styles/footer.css';
 
-// Import logo if you have one
+// Import logo
 import logo from '../../assets/images/logo-svg.svg';
 
 function Footer() {
@@ -12,25 +12,29 @@ function Footer() {
     const userRole = useRecoilValue(userRoleState);
     const currentYear = new Date().getFullYear();
 
-    // Get appropriate footer links based on role
-    const getLinks = () => {
+    // Get role-specific links and information
+    const getRoleSpecificContent = () => {
+        // Common links for all users
         const commonLinks = [
             { label: 'Home', path: isLoggedIn ? '/dashboard' : '/' },
             { label: 'Verify Product', path: '/buy' },
             { label: 'Scan QR Code', path: '/scan' },
         ];
 
+        // Consumer links
         const consumerLinks = [
             { label: 'My Products', path: '/products' },
             { label: 'My Profile', path: '/profile' },
         ];
 
+        // Seller links
         const sellerLinks = [
             { label: 'My Inventory', path: '/products' },
             { label: 'Sell Products', path: '/sell' },
             { label: 'Transfer Ownership', path: '/addowner' },
         ];
 
+        // Manufacturer links
         const manufacturerLinks = [
             { label: 'Add New Product', path: '/add' },
             { label: 'My Products', path: '/products' },
@@ -38,16 +42,35 @@ function Footer() {
             { label: 'Transfer Ownership', path: '/addowner' },
         ];
 
-        if (userRole === 'manufacturer') {
-            return { common: commonLinks, role: manufacturerLinks };
-        } else if (userRole === 'seller') {
-            return { common: commonLinks, role: sellerLinks };
-        } else {
-            return { common: commonLinks, role: consumerLinks };
-        }
+        // Role-specific content
+        const roleContent = {
+            'manufacturer': {
+                title: 'For Manufacturers',
+                description: 'Register products on the blockchain and track their authenticity throughout the supply chain.',
+                links: manufacturerLinks,
+                icon: 'bi-building'
+            },
+            'seller': {
+                title: 'For Sellers',
+                description: 'Sell authentic products and manage your inventory with blockchain verification.',
+                links: sellerLinks,
+                icon: 'bi-shop'
+            },
+            'consumer': {
+                title: 'For Consumers',
+                description: 'Verify product authenticity and track ownership history.',
+                links: consumerLinks,
+                icon: 'bi-person'
+            }
+        };
+
+        return {
+            common: commonLinks,
+            role: roleContent[userRole] || roleContent['consumer']
+        };
     };
 
-    const links = getLinks();
+    const { common, role } = getRoleSpecificContent();
 
     return (
         <footer className="site-footer">
@@ -62,13 +85,18 @@ function Footer() {
                             <p className="footer-tagline">
                                 Authenticating products with blockchain technology
                             </p>
+                            
+                            <div className="footer-role-badge">
+                                <i className={`bi ${role.icon}`}></i>
+                                <span>{userRole.charAt(0).toUpperCase() + userRole.slice(1)}</span>
+                            </div>
                         </div>
 
                         <div className="footer-links-section">
                             <div className="footer-links-column">
                                 <h3>Navigation</h3>
                                 <ul className="footer-links">
-                                    {links.common.map((link, index) => (
+                                    {common.map((link, index) => (
                                         <li key={index}>
                                             <Link to={link.path}>{link.label}</Link>
                                         </li>
@@ -77,9 +105,10 @@ function Footer() {
                             </div>
 
                             <div className="footer-links-column">
-                                <h3>{userRole === 'consumer' ? 'For Users' : userRole === 'seller' ? 'For Sellers' : 'For Manufacturers'}</h3>
+                                <h3>{role.title}</h3>
+                                <p className="footer-column-desc">{role.description}</p>
                                 <ul className="footer-links">
-                                    {links.role.map((link, index) => (
+                                    {role.links.map((link, index) => (
                                         <li key={index}>
                                             <Link to={link.path}>{link.label}</Link>
                                         </li>
@@ -88,7 +117,7 @@ function Footer() {
                             </div>
 
                             <div className="footer-links-column">
-                                <h3>About</h3>
+                                <h3>Resources</h3>
                                 <ul className="footer-links">
                                     <li><Link to="/about">About DigiSeal</Link></li>
                                     <li><Link to="/how-it-works">How It Works</Link></li>
@@ -113,6 +142,17 @@ function Footer() {
                                         <i className="bi bi-github"></i>
                                     </a>
                                 </div>
+                                
+                                <div className="footer-newsletter">
+                                    <h4>Stay Updated</h4>
+                                    <p>Get the latest news on product authentication technology</p>
+                                    <div className="newsletter-form">
+                                        <input type="email" placeholder="Your email address" />
+                                        <button type="button">
+                                            <i className="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -128,6 +168,7 @@ function Footer() {
                         <div className="footer-legal-links">
                             <Link to="/privacy">Privacy Policy</Link>
                             <Link to="/terms">Terms of Service</Link>
+                            <Link to="/security">Security</Link>
                         </div>
                     </div>
                 </div>
