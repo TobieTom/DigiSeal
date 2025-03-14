@@ -1,8 +1,8 @@
 // src/pages/AddProduct.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Row, Col, Button, Card, Alert, Spinner } from 'react-bootstrap';
-import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
+import { Form as BootstrapForm, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useSetRecoilState } from 'recoil';
 import { toastState } from '../store/atoms';
@@ -111,16 +111,20 @@ function AddProduct() {
 
     return (
         <section className="form-section">
-            <div className="container">
-                <Row className="justify-content-center">
-                    <Col lg={8} md={10}>
-                        <Card className="form-card">
-                            <Card.Header className="form-card-header">
+            <div className="form-container">
+                <div className="form-frame">
+                    {loading ? (
+                        <div className="loader-container-fixed">
+                            <div className="loader"></div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="form-header">
                                 <h2>Add New Product</h2>
-                                <p>Register a new product on the blockchain</p>
-                            </Card.Header>
-                            
-                            <Card.Body>
+                                <p>Register a product on the blockchain</p>
+                            </div>
+
+                            <div className="form-body">
                                 {error && (
                                     <Alert variant="danger" className="mb-4">
                                         <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -144,10 +148,10 @@ function AddProduct() {
                                     onSubmit={handleSubmit}
                                 >
                                     {({ isSubmitting, setFieldValue, values }) => (
-                                        <FormikForm className="product-form">
+                                        <Form className="product-form">
                                             <Row className="mb-3">
-                                                <Form.Group as={Col} md={6}>
-                                                    <Form.Label>Product Name</Form.Label>
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Product Name</BootstrapForm.Label>
                                                     <Field
                                                         type="text"
                                                         name="name"
@@ -155,23 +159,12 @@ function AddProduct() {
                                                         className="form-control"
                                                     />
                                                     <ErrorMessage name="name" component="div" className="error-message" />
-                                                </Form.Group>
-
-                                                <Form.Group as={Col} md={6}>
-                                                    <Form.Label>Price</Form.Label>
-                                                    <Field
-                                                        type="text"
-                                                        name="price"
-                                                        placeholder="Enter price (e.g., 99.99)"
-                                                        className="form-control"
-                                                    />
-                                                    <ErrorMessage name="price" component="div" className="error-message" />
-                                                </Form.Group>
+                                                </BootstrapForm.Group>
                                             </Row>
 
                                             <Row className="mb-3">
-                                                <Form.Group as={Col}>
-                                                    <Form.Label>Product ID</Form.Label>
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Product ID</BootstrapForm.Label>
                                                     <div className="d-flex">
                                                         <Field
                                                             type="text"
@@ -191,12 +184,25 @@ function AddProduct() {
                                                     <small className="form-text text-muted">
                                                         Create a unique identifier for this product
                                                     </small>
-                                                </Form.Group>
+                                                </BootstrapForm.Group>
                                             </Row>
 
                                             <Row className="mb-3">
-                                                <Form.Group as={Col}>
-                                                    <Form.Label>Manufacturing Location</Form.Label>
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Price</BootstrapForm.Label>
+                                                    <Field
+                                                        type="text"
+                                                        name="price"
+                                                        placeholder="Enter price (e.g., 99.99)"
+                                                        className="form-control"
+                                                    />
+                                                    <ErrorMessage name="price" component="div" className="error-message" />
+                                                </BootstrapForm.Group>
+                                            </Row>
+
+                                            <Row className="mb-3">
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Manufacturing Location</BootstrapForm.Label>
                                                     <Field
                                                         type="text"
                                                         name="manufacturingLocation"
@@ -204,12 +210,12 @@ function AddProduct() {
                                                         className="form-control"
                                                     />
                                                     <ErrorMessage name="manufacturingLocation" component="div" className="error-message" />
-                                                </Form.Group>
+                                                </BootstrapForm.Group>
                                             </Row>
 
                                             <Row className="mb-3">
-                                                <Form.Group as={Col}>
-                                                    <Form.Label>Description</Form.Label>
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Description</BootstrapForm.Label>
                                                     <Field
                                                         as="textarea"
                                                         name="description"
@@ -218,12 +224,12 @@ function AddProduct() {
                                                         rows="4"
                                                     />
                                                     <ErrorMessage name="description" component="div" className="error-message" />
-                                                </Form.Group>
+                                                </BootstrapForm.Group>
                                             </Row>
 
                                             <Row className="mb-3">
-                                                <Form.Group as={Col}>
-                                                    <Form.Label>Specifications (Optional)</Form.Label>
+                                                <BootstrapForm.Group as={Col}>
+                                                    <BootstrapForm.Label>Specifications (Optional)</BootstrapForm.Label>
                                                     <Field
                                                         as="textarea"
                                                         name="specifications"
@@ -232,42 +238,33 @@ function AddProduct() {
                                                         rows="3"
                                                     />
                                                     <ErrorMessage name="specifications" component="div" className="error-message" />
-                                                </Form.Group>
+                                                </BootstrapForm.Group>
                                             </Row>
 
-                                            <div className="d-flex justify-content-between mt-4">
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    onClick={() => navigate('/dashboard')}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                                
-                                                <Button
-                                                    type="submit"
-                                                    variant="primary"
-                                                    disabled={isSubmitting || loading}
-                                                >
-                                                    {isSubmitting || loading ? (
-                                                        <>
-                                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
-                                                            Registering Product...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <i className="bi bi-plus-circle me-2"></i>
-                                                            Register Product
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </FormikForm>
+                                            <Button
+                                                type="submit"
+                                                className="submit-button"
+                                                disabled={isSubmitting || loading}
+                                            >
+                                                {isSubmitting || loading ? (
+                                                    <>
+                                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                                                        Registering Product...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="bi bi-plus-circle me-2"></i>
+                                                        Register Product
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </Form>
                                     )}
                                 </Formik>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </section>
     );
