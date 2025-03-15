@@ -86,7 +86,7 @@ function AddProduct() {
             // Navigate to QR code page after successful registration
             setTimeout(() => {
                 navigate(`/qrcode/${values.productId}`);
-            }, 1500);
+            }, 5000);
         } catch (error) {
             console.error('Error adding product:', error);
             setError(error.message || 'Failed to add product. Please try again.');

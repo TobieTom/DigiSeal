@@ -1,9 +1,9 @@
+// src/pages/ProductsList.jsx
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { userRoleState, toastState } from '../store/atoms'
 import blockchainService from '../services/BlockchainService'
-import ipfsService from '../services/IPFSService'
 import Loader from '../components/common/Loader'
 import '../styles/products-list.css'
 
@@ -40,17 +40,21 @@ function ProductsList() {
                 for (const id of productIds) {
                     try {
                         const productDetails = await blockchainService.getProductDetails(id)
+                        console.log(`Raw product details for ${id}:`, productDetails);
+                        
+                        // Try to parse productDetails JSON string
                         let extendedInfo = {}
-
-                        // Try to fetch extended info from IPFS
-                        if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+                        if (productDetails.productDetails) {
                             try {
-                                extendedInfo = await ipfsService.getJSON(productDetails.productDetails)
-                            } catch (ipfsError) {
-                                console.error('Error fetching IPFS details:', ipfsError)
+                                console.log(`Product details string for ${id}:`, productDetails.productDetails);
+                                extendedInfo = JSON.parse(productDetails.productDetails);
+                                console.log(`Parsed details for ${id}:`, extendedInfo);
+                            } catch (parseError) {
+                                console.error(`Error parsing product details for ${id}:`, parseError);
                             }
                         }
 
+                        // Add product to list with properly extracted price
                         productsList.push({
                             id: id,
                             name: extendedInfo.name || productDetails.manufacturerName,
