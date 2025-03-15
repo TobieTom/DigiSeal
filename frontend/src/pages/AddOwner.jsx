@@ -1,20 +1,20 @@
 // src/pages/AddOwner.jsx
-import { useState } from 'react'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
-import * as Yup from 'yup'
-import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { newOwnerState, productIdState, toastState } from '../store/atoms'
-import blockchainService from '../services/BlockchainService'
-import Loader from '../components/common/Loader'
-import '../styles/forms.css'
+import { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { Form as BootstrapForm, Row, Col, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { newOwnerState, productIdState, toastState } from '../store/atoms';
+import blockchainService from '../services/BlockchainService';
+import Loader from '../components/common/Loader';
+import '../styles/forms.css';
 
 function AddOwner() {
-    const [newOwner, setNewOwner] = useRecoilState(newOwnerState)
-    const [productId, setProductId] = useRecoilState(productIdState)
-    const setToast = useSetRecoilState(toastState)
-    const [loading, setLoading] = useState(false)
+    const [newOwner, setNewOwner] = useRecoilState(newOwnerState);
+    const [productId, setProductId] = useRecoilState(productIdState);
+    const setToast = useSetRecoilState(toastState);
+    const [loading, setLoading] = useState(false);
 
     // Validation schema
     const validationSchema = Yup.object({
@@ -24,44 +24,51 @@ function AddOwner() {
         productId: Yup.string()
             .required('Product ID is required'),
         transferConditions: Yup.string()
-    })
+    });
 
     // Initial form values
     const initialValues = {
         address: newOwner || '',
         productId: productId || '',
         transferConditions: ''
-    }
+    };
 
     // Handle form submission
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            setLoading(true)
+            setLoading(true);
+
+            console.log("Transferring ownership:", values);
+
+            // Initialize blockchain service
+            await blockchainService.init();
 
             // Transfer ownership on blockchain
-            await blockchainService.transferOwnership(
+            const result = await blockchainService.transferOwnership(
                 values.productId,
                 values.address,
                 values.transferConditions
-            )
+            );
+
+            console.log("Transfer result:", result);
 
             // Reset form and state
-            setNewOwner('')
-            setProductId('')
-            resetForm()
+            setNewOwner('');
+            setProductId('');
+            resetForm();
 
             // Show success message
-            setToast('Ownership transferred successfully!')
+            setToast('Ownership transferred successfully!');
 
-            setLoading(false)
-            setSubmitting(false)
+            setLoading(false);
+            setSubmitting(false);
         } catch (error) {
-            console.error('Error transferring ownership:', error)
-            setToast('Failed to transfer ownership: ' + error.message)
-            setLoading(false)
-            setSubmitting(false)
+            console.error('Error transferring ownership:', error);
+            setToast('Failed to transfer ownership: ' + error.message);
+            setLoading(false);
+            setSubmitting(false);
         }
-    }
+    };
 
     return (
         <section className="form-section">
@@ -157,7 +164,7 @@ function AddOwner() {
                 </div>
             </div>
         </section>
-    )
+    );
 }
 
-export default AddOwner
+export default AddOwner;

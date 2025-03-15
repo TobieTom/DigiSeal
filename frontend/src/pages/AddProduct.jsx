@@ -1,14 +1,13 @@
 // src/pages/AddProduct.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form as BootstrapForm, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Form, Row, Col, Button, Card, Alert, Spinner } from 'react-bootstrap';
+import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useSetRecoilState } from 'recoil';
 import { toastState } from '../store/atoms';
 import { useAuth } from '../context/AuthContext';
 import blockchainService from '../services/BlockchainService';
-import ipfsService from '../services/IPFSService';
 import '../styles/forms.css';
 
 function AddProduct() {
@@ -57,7 +56,7 @@ function AddProduct() {
             setError('');
             setSuccess(false);
 
-            // Store detailed product information in IPFS
+            // Store product details in an object
             const productDetails = {
                 name: values.name,
                 price: values.price,
@@ -67,15 +66,14 @@ function AddProduct() {
                 addedBy: userAddress
             };
 
-            // Upload to IPFS
-            const ipfsHash = await ipfsService.addJSON(productDetails);
-            console.log('Product details uploaded to IPFS:', ipfsHash);
+            // Convert to JSON string
+            const productDetailsString = JSON.stringify(productDetails);
 
             // Register product on blockchain
             const result = await blockchainService.registerProduct(
                 values.productId,
-                values.name, // Use name as manufacturer name for simplicity
-                ipfsHash, // Store IPFS hash as product details
+                values.name, // Use name as manufacturer name
+                productDetailsString, // Pass the stringified details directly
                 values.manufacturingLocation
             );
 
@@ -85,7 +83,7 @@ function AddProduct() {
             setSuccess(true);
             resetForm();
             
-            // Wait a moment before navigating to allow the user to see the success message
+            // Navigate to QR code page after successful registration
             setTimeout(() => {
                 navigate(`/qrcode/${values.productId}`);
             }, 1500);
@@ -113,157 +111,156 @@ function AddProduct() {
         <section className="form-section">
             <div className="form-container">
                 <div className="form-frame">
-                    {loading ? (
-                        <div className="loader-container-fixed">
-                            <div className="loader"></div>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="form-header">
-                                <h2>Add New Product</h2>
-                                <p>Register a product on the blockchain</p>
-                            </div>
+                    <div className="form-header">
+                        <h2>Add New Product</h2>
+                        <p>Register a new product on the blockchain</p>
+                    </div>
 
-                            <div className="form-body">
-                                {error && (
-                                    <Alert variant="danger" className="mb-4">
-                                        <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                                        {error}
-                                    </Alert>
-                                )}
+                    <div className="form-body">
+                        {error && (
+                            <Alert variant="danger" className="mb-4">
+                                <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                                {error}
+                            </Alert>
+                        )}
 
-                                {success && (
-                                    <Alert variant="success" className="mb-4">
-                                        <i className="bi bi-check-circle-fill me-2"></i>
-                                        Product <strong>{productId}</strong> has been successfully registered on the blockchain!
-                                        <div className="mt-2">
-                                            Redirecting to QR code page...
-                                        </div>
-                                    </Alert>
-                                )}
+                        {success && (
+                            <Alert variant="success" className="mb-4">
+                                <i className="bi bi-check-circle-fill me-2"></i>
+                                Product <strong>{productId}</strong> has been successfully registered on the blockchain!
+                                <div className="mt-2">
+                                    Redirecting to QR code page...
+                                </div>
+                            </Alert>
+                        )}
 
-                                <Formik
-                                    initialValues={initialValues}
-                                    validationSchema={validationSchema}
-                                    onSubmit={handleSubmit}
-                                >
-                                    {({ isSubmitting, setFieldValue, values }) => (
-                                        <Form className="product-form">
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Product Name</BootstrapForm.Label>
-                                                    <Field
-                                                        type="text"
-                                                        name="name"
-                                                        placeholder="Enter product name"
-                                                        className="form-control"
-                                                    />
-                                                    <ErrorMessage name="name" component="div" className="error-message" />
-                                                </BootstrapForm.Group>
-                                            </Row>
+                        <Formik
+                            initialValues={initialValues}
+                            validationSchema={validationSchema}
+                            onSubmit={handleSubmit}
+                        >
+                            {({ isSubmitting, setFieldValue, values }) => (
+                                <FormikForm className="product-form">
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col} md={6}>
+                                            <Form.Label>Product Name</Form.Label>
+                                            <Field
+                                                type="text"
+                                                name="name"
+                                                placeholder="Enter product name"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage name="name" component="div" className="error-message" />
+                                        </Form.Group>
 
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Product ID</BootstrapForm.Label>
-                                                    <div className="d-flex">
-                                                        <Field
-                                                            type="text"
-                                                            name="productId"
-                                                            placeholder="Enter unique product ID"
-                                                            className="form-control"
-                                                        />
-                                                        <Button 
-                                                            variant="outline-secondary"
-                                                            onClick={() => setFieldValue('productId', generateRandomId())}
-                                                            className="ms-2"
-                                                        >
-                                                            Generate
-                                                        </Button>
-                                                    </div>
-                                                    <ErrorMessage name="productId" component="div" className="error-message" />
-                                                    <small className="form-text text-muted">
-                                                        Create a unique identifier for this product
-                                                    </small>
-                                                </BootstrapForm.Group>
-                                            </Row>
+                                        <Form.Group as={Col} md={6}>
+                                            <Form.Label>Price</Form.Label>
+                                            <Field
+                                                type="text"
+                                                name="price"
+                                                placeholder="Enter price (e.g., 99.99)"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage name="price" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
 
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Price</BootstrapForm.Label>
-                                                    <Field
-                                                        type="text"
-                                                        name="price"
-                                                        placeholder="Enter price (e.g., 99.99)"
-                                                        className="form-control"
-                                                    />
-                                                    <ErrorMessage name="price" component="div" className="error-message" />
-                                                </BootstrapForm.Group>
-                                            </Row>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Product ID</Form.Label>
+                                            <div className="d-flex">
+                                                <Field
+                                                    type="text"
+                                                    name="productId"
+                                                    placeholder="Enter unique product ID"
+                                                    className="form-control"
+                                                />
+                                                <Button 
+                                                    variant="outline-secondary"
+                                                    onClick={() => setFieldValue('productId', generateRandomId())}
+                                                    className="ms-2"
+                                                >
+                                                    Generate
+                                                </Button>
+                                            </div>
+                                            <ErrorMessage name="productId" component="div" className="error-message" />
+                                            <small className="form-text text-muted">
+                                                Create a unique identifier for this product
+                                            </small>
+                                        </Form.Group>
+                                    </Row>
 
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Manufacturing Location</BootstrapForm.Label>
-                                                    <Field
-                                                        type="text"
-                                                        name="manufacturingLocation"
-                                                        placeholder="City, Country"
-                                                        className="form-control"
-                                                    />
-                                                    <ErrorMessage name="manufacturingLocation" component="div" className="error-message" />
-                                                </BootstrapForm.Group>
-                                            </Row>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Manufacturing Location</Form.Label>
+                                            <Field
+                                                type="text"
+                                                name="manufacturingLocation"
+                                                placeholder="City, Country"
+                                                className="form-control"
+                                            />
+                                            <ErrorMessage name="manufacturingLocation" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
 
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Description</BootstrapForm.Label>
-                                                    <Field
-                                                        as="textarea"
-                                                        name="description"
-                                                        placeholder="Detailed product description"
-                                                        className="form-control"
-                                                        rows="4"
-                                                    />
-                                                    <ErrorMessage name="description" component="div" className="error-message" />
-                                                </BootstrapForm.Group>
-                                            </Row>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Description</Form.Label>
+                                            <Field
+                                                as="textarea"
+                                                name="description"
+                                                placeholder="Detailed product description"
+                                                className="form-control"
+                                                rows="4"
+                                            />
+                                            <ErrorMessage name="description" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
 
-                                            <Row className="mb-3">
-                                                <BootstrapForm.Group as={Col}>
-                                                    <BootstrapForm.Label>Specifications (Optional)</BootstrapForm.Label>
-                                                    <Field
-                                                        as="textarea"
-                                                        name="specifications"
-                                                        placeholder="Technical specifications, materials, dimensions, etc."
-                                                        className="form-control"
-                                                        rows="3"
-                                                    />
-                                                    <ErrorMessage name="specifications" component="div" className="error-message" />
-                                                </BootstrapForm.Group>
-                                            </Row>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col}>
+                                            <Form.Label>Specifications (Optional)</Form.Label>
+                                            <Field
+                                                as="textarea"
+                                                name="specifications"
+                                                placeholder="Technical specifications, materials, dimensions, etc."
+                                                className="form-control"
+                                                rows="3"
+                                            />
+                                            <ErrorMessage name="specifications" component="div" className="error-message" />
+                                        </Form.Group>
+                                    </Row>
 
-                                            <Button
-                                                type="submit"
-                                                className="submit-button"
-                                                disabled={isSubmitting || loading}
-                                            >
-                                                {isSubmitting || loading ? (
-                                                    <>
-                                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
-                                                        Registering Product...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <i className="bi bi-plus-circle me-2"></i>
-                                                        Register Product
-                                                    </>
-                                                )}
-                                            </Button>
-                                        </Form>
-                                    )}
-                                </Formik>
-                            </div>
-                        </>
-                    )}
+                                    <div className="d-flex justify-content-between mt-4">
+                                        <Button
+                                            variant="outline-secondary"
+                                            onClick={() => navigate('/dashboard')}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            disabled={isSubmitting || loading}
+                                        >
+                                            {isSubmitting || loading ? (
+                                                <>
+                                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                                                    Registering Product...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="bi bi-plus-circle me-2"></i>
+                                                    Register Product
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </FormikForm>
+                            )}
+                        </Formik>
+                    </div>
                 </div>
             </div>
         </section>

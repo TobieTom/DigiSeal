@@ -26,11 +26,13 @@ function ScanQR() {
      */
     const handleScanSuccess = (data) => {
         if (data && !navigating) {
+            console.log("QR code scanned successfully:", data);
             setScannedValue(data);
             setNavigating(true);
             
             // Use setTimeout to ensure state is updated before navigation
             setTimeout(() => {
+                console.log("Navigating to:", returnTo);
                 navigate(returnTo);
             }, 1200);
         }

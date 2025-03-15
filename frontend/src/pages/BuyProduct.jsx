@@ -7,7 +7,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { secretIdState, toastState } from '../store/atoms';
 import blockchainService from '../services/BlockchainService';
-import ipfsService from '../services/IPFSService';
 import Loader from '../components/common/Loader';
 import '../styles/forms.css';
 
@@ -34,13 +33,13 @@ function BuyProduct() {
                     const history = await blockchainService.getVerificationHistory(secretId);
                     setVerificationHistory(history);
                     
-                    // Get extended details from IPFS if available
+                    // Parse extended details from JSON if available
                     let extendedDetails = {};
-                    if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+                    if (productDetails.productDetails) {
                         try {
-                            extendedDetails = await ipfsService.getJSON(productDetails.productDetails);
+                            extendedDetails = JSON.parse(productDetails.productDetails);
                         } catch (error) {
-                            console.error('Error fetching IPFS details:', error);
+                            console.error('Error parsing product details:', error);
                         }
                     }
                     
@@ -50,7 +49,8 @@ function BuyProduct() {
                         manufacturer: productDetails.manufacturerName,
                         manufacturingDate: new Date(productDetails.manufactureDate).toLocaleDateString(),
                         verificationTime: new Date().toLocaleString(),
-                        isAuthentic: productDetails.isAuthentic
+                        isAuthentic: productDetails.isAuthentic,
+                        productId: secretId
                     });
                     
                     setVerificationSuccess(true);
@@ -82,6 +82,9 @@ function BuyProduct() {
         try {
             setLoading(true);
 
+            // Initialize blockchain if needed
+            await blockchainService.init();
+
             // Verify product on blockchain
             const isAuthentic = await blockchainService.verifyProduct(
                 values.secretId,
@@ -91,13 +94,13 @@ function BuyProduct() {
             // Get product details
             const productDetails = await blockchainService.getProductDetails(values.secretId);
 
-            // Get additional details from IPFS if available
+            // Parse extended details if available
             let extendedDetails = {};
-            if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+            if (productDetails.productDetails) {
                 try {
-                    extendedDetails = await ipfsService.getJSON(productDetails.productDetails);
+                    extendedDetails = JSON.parse(productDetails.productDetails);
                 } catch (error) {
-                    console.error('Error fetching IPFS details:', error);
+                    console.error('Error parsing product details:', error);
                 }
             }
 

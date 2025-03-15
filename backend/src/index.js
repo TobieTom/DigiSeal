@@ -1,24 +1,52 @@
-// backend/src/index.js
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
+// src/store/atoms/index.js
+import { atom } from 'recoil';
 
-// Load environment variables
-dotenv.config();
+// Authentication state
+export const loginState = atom({
+    key: 'loginState',
+    default: false,
+});
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+// User role state
+export const userRoleState = atom({
+    key: 'userRoleState',
+    default: localStorage.getItem('userRole') || 'consumer',
+});
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Toast notifications
+export const toastState = atom({
+    key: 'toastState',
+    default: '',
+});
 
-// Routes
-app.use('/api/products', require('./routes/product'));
-app.use('/api/users', require('./routes/users'));
+// Product related states
+export const buyerAddressState = atom({
+    key: 'buyerAddressState',
+    default: '',
+});
 
+export const productIdState = atom({
+    key: 'productIdState',
+    default: '',
+});
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+export const productIdHomeState = atom({
+    key: 'productIdHomeState',
+    default: '',
+});
+
+export const secretIdState = atom({
+    key: 'secretIdState',
+    default: '',
+});
+
+export const newOwnerState = atom({
+    key: 'newOwnerState',
+    default: '',
+});
+
+// Fallback state for QR scanning
+export const fallbackState = atom({
+    key: 'fallbackState',
+    default: '',
 });

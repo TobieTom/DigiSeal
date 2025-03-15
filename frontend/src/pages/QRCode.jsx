@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import QRCodeComponent from 'react-qr-code';
 import { Card, Button, Row, Col, Alert } from 'react-bootstrap';
 import blockchainService from '../services/BlockchainService';
-import ipfsService from '../services/IPFSService';
 import Loader from '../components/common/Loader';
 import '../styles/qrcode.css';
 
@@ -31,13 +30,13 @@ function QRCode() {
                 const productDetails = await blockchainService.getProductDetails(id);
                 setProductInfo(productDetails);
 
-                // Fetch extended details from IPFS if available
-                if (productDetails.productDetails && productDetails.productDetails.startsWith('Qm')) {
+                // Parse extended details from JSON string if available
+                if (productDetails.productDetails) {
                     try {
-                        const ipfsData = await ipfsService.getJSON(productDetails.productDetails);
-                        setExtendedInfo(ipfsData);
+                        const parsedDetails = JSON.parse(productDetails.productDetails);
+                        setExtendedInfo(parsedDetails);
                     } catch (error) {
-                        console.error('Error fetching IPFS details:', error);
+                        console.error('Error parsing product details:', error);
                     }
                 }
 

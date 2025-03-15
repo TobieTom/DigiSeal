@@ -26370,20 +26370,209 @@
   },
   "networks": {
     "17000": {
-      "events": {},
+      "events": {
+        "0x332143078cba66677c9544dfbc4d4c76d3fde7693522eecc6fec53419b3c8e35": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "productId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "reporter",
+              "type": "address"
+            }
+          ],
+          "name": "CounterfeitReported",
+          "type": "event"
+        },
+        "0x6840904f5b31827f74e1497360da245f56e530c8c3de3163a2d31f11493273c6": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "productId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0x93e851db22c8431d137e3294af8a23c2a039674fd2efada79569472f18c4fba3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "productId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "manufacturer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "manufacturerName",
+              "type": "string"
+            }
+          ],
+          "name": "ProductRegistered",
+          "type": "event"
+        },
+        "0x47e557704d2cdab91003b2528a15c97d004949b2f2e4f2b8ba768f2cbe807fa1": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "productId",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "verifier",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "authentic",
+              "type": "bool"
+            }
+          ],
+          "name": "ProductVerified",
+          "type": "event"
+        },
+        "0xbd79b86ffe0ab8e8776151514217cd7cacd52c909f66475c3af44e129f0b00ff": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "previousAdminRole",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "newAdminRole",
+              "type": "bytes32"
+            }
+          ],
+          "name": "RoleAdminChanged",
+          "type": "event"
+        },
+        "0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleGranted",
+          "type": "event"
+        },
+        "0xf6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "role",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            }
+          ],
+          "name": "RoleRevoked",
+          "type": "event"
+        },
+        "0x4d97d287a8f631378031b05cb24c876085261ddaa7b8f584477370ef473fbb3d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "seller",
+              "type": "address"
+            }
+          ],
+          "name": "SellerRegistered",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0x62812887E780e8dFDC1454B44FcdA4A08459334f",
-      "transactionHash": "0xd2edc1f148eb8d5fed4a6e4340ba75959110c2636ca977cca9becafd9a89d3f6"
+      "address": "0x2a97A78a93cE426e45b13662F500CE84839d232c",
+      "transactionHash": "0xd56892ab42ac0b8b91dc61b66d6f8406ab5c1310efcc035f7089c02591fa73f4"
     },
     "1741530880735": {
       "events": {},
       "links": {},
       "address": "0x923d724452ddB6C46C0B199316ED9fe43cA885d5",
       "transactionHash": "0xf14f4889a4c0dff54019a06f822f6a5bac9afa619de54c107680b5ceb454843d"
+    },
+    "1741904811404": {
+      "events": {},
+      "links": {},
+      "address": "0x62812887E780e8dFDC1454B44FcdA4A08459334f",
+      "transactionHash": "0x7c8e58dfea04d733d72f0237b6fe59ef1ad28aa0bf8c8566e4c38474a8e7c886"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-03-13T00:14:19.909Z",
+  "updatedAt": "2025-03-14T06:33:53.065Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Contract for verifying authentic products and tracking ownership",

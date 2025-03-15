@@ -40,6 +40,7 @@ class BlockchainService {
             console.error("Error loading contract ABI:", error);
             
             // Fallback to using a hardcoded ABI if fetch fails
+            console.warn("Using fallback ABI");
             // This is a minimal ABI with only the methods we need
             this.contractAbi = [
                 // Product registration
@@ -147,41 +148,6 @@ class BlockchainService {
                     "stateMutability": "nonpayable",
                     "type": "function"
                 },
-                // Register seller
-                {
-                    "inputs": [{ "name": "seller", "type": "address" }],
-                    "name": "registerSeller",
-                    "outputs": [{ "name": "", "type": "bool" }],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                // Check user role
-                {
-                    "inputs": [
-                        { "name": "role", "type": "bytes32" },
-                        { "name": "account", "type": "address" }
-                    ],
-                    "name": "hasSpecificRole",
-                    "outputs": [{ "name": "", "type": "bool" }],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                // Get products owned
-                {
-                    "inputs": [{ "name": "owner", "type": "address" }],
-                    "name": "getProductsOwned",
-                    "outputs": [{ "name": "", "type": "string[]" }],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                // Get products manufactured
-                {
-                    "inputs": [{ "name": "manufacturer", "type": "address" }],
-                    "name": "getProductsManufactured",
-                    "outputs": [{ "name": "", "type": "string[]" }],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
                 // Events
                 {
                     "anonymous": false,
@@ -203,7 +169,7 @@ class BlockchainService {
     }
 
     /**
-     * Initialize the blockchain service
+     * Initialize the blockchain service with MetaMask
      * @returns {Promise<boolean>} Initialization status
      */
     async init() {
@@ -213,30 +179,43 @@ class BlockchainService {
             // Load contract ABI first
             const contractInfo = await this._loadContractAbi();
 
-            // Initialize Web3
+            // Initialize Web3 with MetaMask
             if (window.ethereum) {
                 this.web3 = new Web3(window.ethereum);
                 try {
+                    // Request account access if needed
+                    console.log("Requesting account access from MetaMask...");
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    console.log("Account access granted");
                 } catch (error) {
-                    console.error("User denied account access");
-                    throw new Error("User denied account access");
+                    console.error("User denied account access or MetaMask is locked");
+                    throw new Error("Please unlock MetaMask and authorize access to continue");
                 }
             } else if (window.web3) {
+                // Legacy web3 provider
+                console.log("Using legacy web3 provider");
                 this.web3 = new Web3(window.web3.currentProvider);
             } else {
+                // Fallback - local provider (only for development)
+                console.log("No web3 provider detected, using fallback");
                 const provider = new Web3.providers.HttpProvider(config.rpcUrl || 'http://localhost:8545');
                 this.web3 = new Web3(provider);
             }
 
+            // Get accounts and network
             this.accounts = await this.web3.eth.getAccounts();
             this.networkId = await this.web3.eth.net.getId();
+
+            console.log("Connected accounts:", this.accounts);
+            console.log("Connected to network ID:", this.networkId);
 
             // Create contract instance
             this.productVerificationContract = new this.web3.eth.Contract(
                 contractInfo.abi,
                 contractInfo.address
             );
+
+            console.log("Contract instance created at address:", contractInfo.address);
 
             this.initialized = true;
             return true;
@@ -247,12 +226,25 @@ class BlockchainService {
     }
 
     /**
-     * Get the current account address
+     * Get the current account address from MetaMask
      * @returns {Promise<string>} Current account address
      */
     async getCurrentAccount() {
         if (!this.initialized) await this.init();
-        this.accounts = await this.web3.eth.getAccounts();
+        
+        // Make sure we get the latest accounts in case they've changed in MetaMask
+        try {
+            this.accounts = await this.web3.eth.getAccounts();
+            if (this.accounts.length === 0) {
+                // Try to request accounts again
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                this.accounts = await this.web3.eth.getAccounts();
+            }
+        } catch (error) {
+            console.error("Error getting accounts:", error);
+            throw new Error("Cannot access accounts. Please make sure MetaMask is unlocked and authorized.");
+        }
+        
         return this.accounts[0];
     }
 
@@ -260,7 +252,7 @@ class BlockchainService {
      * Register a new product on the blockchain
      * @param {string} productId - Product ID
      * @param {string} manufacturerName - Manufacturer name
-     * @param {string} productDetails - Product details or IPFS hash
+     * @param {string} productDetails - Product details or JSON string
      * @param {string} manufacturingLocation - Manufacturing location
      * @returns {Promise<object>} Transaction receipt
      */
@@ -269,6 +261,16 @@ class BlockchainService {
 
         try {
             const account = await this.getCurrentAccount();
+            
+            console.log("Registering product with parameters:", {
+                productId,
+                manufacturerName,
+                detailsLength: productDetails ? productDetails.length : 0,
+                manufacturingLocation,
+                from: account
+            });
+            
+            // Call the contract method to register the product
             return await this.productVerificationContract.methods.registerProduct(
                 productId,
                 manufacturerName,
@@ -430,25 +432,6 @@ class BlockchainService {
             ).send({ from: account });
         } catch (error) {
             console.error("Error reporting counterfeit:", error);
-            throw error;
-        }
-    }
-
-    /**
-     * Register a new seller
-     * @param {string} sellerAddress - Seller address
-     * @returns {Promise<object>} Transaction receipt
-     */
-    async registerSeller(sellerAddress) {
-        if (!this.initialized) await this.init();
-
-        try {
-            const account = await this.getCurrentAccount();
-            return await this.productVerificationContract.methods.registerSeller(
-                sellerAddress
-            ).send({ from: account });
-        } catch (error) {
-            console.error("Error registering seller:", error);
             throw error;
         }
     }

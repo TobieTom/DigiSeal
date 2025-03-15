@@ -22,6 +22,7 @@ const ScanQR = lazy(() => import('./pages/ScanQR'))
 const QRCode = lazy(() => import('./pages/QRCode'))
 const AddOwner = lazy(() => import('./pages/AddOwner'))
 const RegisterSeller = lazy(() => import('./pages/RegisterSeller'))
+const ReportCounterfeit = lazy(() => import('./pages/ReportCounterfeit'))
 
 // Auth wrapper component
 const RequireAuth = ({ children }) => {
@@ -148,6 +149,11 @@ function AppRoutes() {
                                         </RequireRole>
                                     </RequireAuth>
                                 }
+                            />
+
+                            <Route
+                                path="/report/:id"
+                                element={<ReportCounterfeit />}
                             />
 
                             {/* Fallback route - redirect to home page */}

@@ -26,6 +26,7 @@ function QrScanner({
     const [scanError, setScanError] = useState('');
     const [cameraPermission, setCameraPermission] = useState('pending');
     const [deviceError, setDeviceError] = useState(false);
+    const [currentFacingMode, setCurrentFacingMode] = useState(facingMode);
 
     // Check for camera permission when component mounts
     useEffect(() => {
@@ -122,7 +123,7 @@ function QrScanner({
     const switchCamera = () => {
         setScanning(true);
         setScanError('');
-        facingMode = facingMode === 'environment' ? 'user' : 'environment';
+        setCurrentFacingMode(currentFacingMode === 'environment' ? 'user' : 'environment');
     };
 
     // Render based on permission and scanning state
@@ -163,7 +164,7 @@ function QrScanner({
                         onScan={handleScanSuccess}
                         style={{ width: '100%' }}
                         constraints={{
-                            video: { facingMode }
+                            video: { facingMode: currentFacingMode }
                         }}
                     />
                 ) : (
