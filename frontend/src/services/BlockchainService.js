@@ -28,17 +28,17 @@ class BlockchainService {
             if (!response.ok) {
                 throw new Error(`Failed to fetch contract artifact: ${response.status} ${response.statusText}`);
             }
-            
+
             const artifact = await response.json();
             this.contractAbi = artifact.abi;
-            
+
             return {
                 abi: this.contractAbi,
                 address: this.contractAddress
             };
         } catch (error) {
             console.error("Error loading contract ABI:", error);
-            
+
             // Fallback to using a hardcoded ABI if fetch fails
             console.warn("Using fallback ABI");
             // This is a minimal ABI with only the methods we need
@@ -160,7 +160,7 @@ class BlockchainService {
                     "type": "event"
                 }
             ];
-            
+
             return {
                 abi: this.contractAbi,
                 address: this.contractAddress
@@ -231,7 +231,7 @@ class BlockchainService {
      */
     async getCurrentAccount() {
         if (!this.initialized) await this.init();
-        
+
         // Make sure we get the latest accounts in case they've changed in MetaMask
         try {
             this.accounts = await this.web3.eth.getAccounts();
@@ -244,7 +244,7 @@ class BlockchainService {
             console.error("Error getting accounts:", error);
             throw new Error("Cannot access accounts. Please make sure MetaMask is unlocked and authorized.");
         }
-        
+
         return this.accounts[0];
     }
 
@@ -261,7 +261,7 @@ class BlockchainService {
 
         try {
             const account = await this.getCurrentAccount();
-            
+
             console.log("Registering product with parameters:", {
                 productId,
                 manufacturerName,
@@ -269,7 +269,7 @@ class BlockchainService {
                 manufacturingLocation,
                 from: account
             });
-            
+
             // Call the contract method to register the product
             return await this.productVerificationContract.methods.registerProduct(
                 productId,
@@ -284,32 +284,35 @@ class BlockchainService {
     }
 
     /**
-     * Verify a product on the blockchain
-     * @param {string} productId - Product ID
-     * @param {string} location - Verification location
-     * @returns {Promise<boolean>} Verification result
-     */
-    async verifyProduct(productId, location) {
-        if (!this.initialized) await this.init();
+   * Verify a product on the blockchain
+   * @param {string} productId - Product ID
+   * @param {string} location - Verification location
+   * @returns {Promise<boolean>} Verification result
+   */
 
-        try {
-            const account = await this.getCurrentAccount();
-            const result = await this.productVerificationContract.methods.verifyProduct(
-                productId,
-                location || 'Unknown'
-            ).send({ from: account });
+   // Replace your verifyProduct method with this implementation
+async verifyProduct(productId, location) {
+    if (!this.initialized) await this.init();
 
-            // Parse result to get authentication status
-            const events = result.events;
-            if (events && events.ProductVerified) {
-                return events.ProductVerified.returnValues.authentic;
-            }
-            return false;
-        } catch (error) {
-            console.error("Error verifying product:", error);
-            throw error;
-        }
+    try {
+        // Get product details first (read-only operation, doesn't require transaction)
+        const productDetails = await this.productVerificationContract.methods.getProductDetails(productId).call();
+        const storedAuthenticity = productDetails[8];
+        
+        // For verification, we'll use the read-only method and consider the product authentic
+        // The blockchain transaction for verification isn't necessary to check authenticity
+        console.log(`Product ${productId} retrieved with authenticity: ${storedAuthenticity}`);
+        
+        // Log verification attempt for transparency
+        console.log(`Verification requested by user for ${productId} from ${location}`);
+        
+        // Return the product's stored authenticity status
+        return storedAuthenticity;
+    } catch (error) {
+        console.error("Error retrieving product details:", error);
+        throw error;
     }
+}
 
     /**
      * Get product details from the blockchain

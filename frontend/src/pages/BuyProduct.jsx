@@ -77,59 +77,86 @@ function BuyProduct() {
         secretId: secretId || '',
     };
 
-    // Handle form submission
-    const handleSubmit = async (values, { setSubmitting }) => {
+    /**
+ * Safer approach to handle verification in BuyProduct.jsx
+ * Add this code inside the handleSubmit function in BuyProduct.jsx
+ * Replace the existing verification code
+ */
+
+// Handle form submission
+const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+        setLoading(true);
+
+        // Initialize blockchain if needed
+        await blockchainService.init();
+
+        // First try to get product details to check if it exists
+        // This is a read-only operation and doesn't need a transaction
+        let productDetails;
         try {
-            setLoading(true);
-
-            // Initialize blockchain if needed
-            await blockchainService.init();
-
-            // Verify product on blockchain
-            const isAuthentic = await blockchainService.verifyProduct(
-                values.secretId,
-                'Web Application' // Location
-            );
-
-            // Get product details
-            const productDetails = await blockchainService.getProductDetails(values.secretId);
-
-            // Parse extended details if available
-            let extendedDetails = {};
-            if (productDetails.productDetails) {
-                try {
-                    extendedDetails = JSON.parse(productDetails.productDetails);
-                } catch (error) {
-                    console.error('Error parsing product details:', error);
-                }
-            }
-
+            productDetails = await blockchainService.getProductDetails(values.secretId);
+            console.log("Product details:", productDetails);
+            
             // Get verification history
             const history = await blockchainService.getVerificationHistory(values.secretId);
             setVerificationHistory(history);
-
-            // Create verification result
-            setVerificationResult({
-                productName: extendedDetails.name || productDetails.manufacturerName,
-                manufacturer: productDetails.manufacturerName,
-                manufacturingDate: new Date(productDetails.manufactureDate).toLocaleDateString(),
-                verificationTime: new Date().toLocaleString(),
-                isAuthentic: isAuthentic,
-                productId: values.secretId
-            });
-
-            setVerificationSuccess(true);
-            setToast(isAuthentic ? 'Product verified as authentic!' : 'Warning: Product verification failed!');
-
+        } catch (detailsError) {
+            console.error('Error fetching product details:', detailsError);
+            setToast('Product not found or invalid ID. Please check the product ID and try again.');
             setLoading(false);
             setSubmitting(false);
-        } catch (error) {
-            console.error('Error verifying product:', error);
-            setToast('Failed to verify product: ' + error.message);
-            setLoading(false);
-            setSubmitting(false);
+            return;
         }
-    };
+
+        // Try to verify the product - this might cause a transaction
+        let isAuthentic = productDetails.isAuthentic; // Default to stored authenticity
+
+        try {
+            // This might trigger a transaction that could fail
+            isAuthentic = await blockchainService.verifyProduct(
+                values.secretId,
+                'Web Application'
+            );
+            console.log("Verification result:", isAuthentic);
+        } catch (verifyError) {
+            console.warn('Verification transaction error:', verifyError);
+            // We'll continue with the stored authenticity value
+            setToast('Verification transaction failed. Using stored authenticity information.');
+        }
+
+        // Parse extended details if available
+        let extendedDetails = {};
+        if (productDetails.productDetails) {
+            try {
+                extendedDetails = JSON.parse(productDetails.productDetails);
+            } catch (error) {
+                console.error('Error parsing product details:', error);
+            }
+        }
+
+        // Create verification result
+        setVerificationResult({
+            productName: extendedDetails.name || productDetails.manufacturerName,
+            manufacturer: productDetails.manufacturerName,
+            manufacturingDate: new Date(productDetails.manufactureDate).toLocaleDateString(),
+            verificationTime: new Date().toLocaleString(),
+            isAuthentic: isAuthentic,
+            productId: values.secretId
+        });
+
+        setVerificationSuccess(true);
+        setToast(isAuthentic ? 'Product verified as authentic!' : 'Warning: Product verification failed!');
+
+        setLoading(false);
+        setSubmitting(false);
+    } catch (error) {
+        console.error('Error verifying product:', error);
+        setToast('Failed to verify product: ' + error.message);
+        setLoading(false);
+        setSubmitting(false);
+    }
+};
 
     // Reset verification state
     const handleReset = () => {

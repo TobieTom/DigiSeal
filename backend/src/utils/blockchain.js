@@ -8,12 +8,13 @@ const ProductVerificationJSON = require(contractPath);
 
 // Connect to blockchain
 const connectBlockchain = () => {
-    const web3Provider = new Web3.providers.HttpProvider(process.env.BLOCKCHAIN_URL || 'http://localhost:8545');
-    const web3 = new Web3(web3Provider);
-
+    // Version 4.x of Web3 handles providers differently
+    const providerUrl = process.env.BLOCKCHAIN_URL || 'http://localhost:8545';
+    const web3 = new Web3(providerUrl);
+    
     // Create truffle contract
     const ProductVerification = TruffleContract(ProductVerificationJSON);
-    ProductVerification.setProvider(web3Provider);
+    ProductVerification.setProvider(web3.currentProvider);
 
     return {
         web3,
