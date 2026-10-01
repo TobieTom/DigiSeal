@@ -471,6 +471,6 @@ We welcome contributions to DigiSeal! Please follow these steps:
 
 
 
-**Built with ❤️ by [TobieTom](https://github.com/TobieTom)**
+Built with ❤️
 
 *Making authenticity verification accessible to everyone through blockchain technology.*
